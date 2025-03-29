@@ -268,14 +268,12 @@ const AutocompleteWrapper = ({
   };
 
   const fetchWithAbortController = async (url: RequestInfo | URL) => {
-    const abortController = useAbortController ? new AbortController() : null;
-    setAbortController(abortController);
+    const ac = useAbortController ? new AbortController() : undefined;
+    setAbortController(ac ?? null);
 
     try {
       setLoading(true);
-      const response = await fetch(url, {
-        signal: useAbortController ? abortController!.signal : undefined,
-      });
+      const response = await fetch(url, { signal: ac?.signal });
       const data = await response.json();
       setOptions(data);
     } catch (error) {
