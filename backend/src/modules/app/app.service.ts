@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable } from 'rxjs';
 import { DataSource, Repository } from 'typeorm';
@@ -11,6 +12,7 @@ interface PgBackendPid {
 }
 
 @Injectable()
+@ApiTags('dogs')
 export class AppService {
   constructor(
     @InjectRepository(Dog)
@@ -30,6 +32,13 @@ export class AppService {
    * Close connection 2
    * Close connection 1
    */
+  @ApiOperation({ summary: 'Get dogs with cancelable query' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns a list of dogs. Query can be cancelled by closing the connection.',
+    type: [Dog],
+  })
   getDogsOrTerminatePidOnClose(): Observable<Dog[]> {
     return new Observable<Dog[]>((subscriber) => {
       const queryRunner = this.dataSource.createQueryRunner();
@@ -104,6 +113,12 @@ export class AppService {
     });
   }
 
+  @ApiOperation({ summary: 'Seed the database with dogs' })
+  @ApiResponse({
+    status: 200,
+    description: 'Seeds the database with the specified number of dogs',
+    type: Number,
+  })
   async seedDogs(totalCount: number) {
     const CHUNK_SIZE = 10000;
     const chunks = Math.ceil(totalCount / CHUNK_SIZE);
@@ -129,6 +144,11 @@ export class AppService {
       );
     }
 
-    this.logger.log(`Completed seeding ${seededCount} dogs`);
+    const finalCount = await this.dogRepository.count();
+
+    this.logger.log(
+      `Completed seeding ${seededCount} dogs. There are now ${await this.dogRepository.count()} dogs in the database.`,
+    );
+    return { seededCount, finalCount };
   }
 }
