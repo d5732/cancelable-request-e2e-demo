@@ -33,9 +33,9 @@ export class AppService {
   searchDogsByNameOrTerminatePidOnClose(name: string): Observable<Dog[]> {
     return new Observable<Dog[]>((subscriber) => {
       const queryRunner = this.dataSource.createQueryRunner();
-
       let processId: number | null = null;
-      let dogs: Dog[];
+      let isQueryComplete = false;
+
       // Establish a new database connection
       void queryRunner.connect().then(() => {
         this.logger.log('Connected to database. Querying for PID...');
@@ -54,37 +54,34 @@ export class AppService {
                 `%${name}%`,
               ])
               .then((rows: Dog[]) => {
-                dogs = rows;
+                isQueryComplete = true;
                 this.logger.log(`Next'ing ${rows?.length} dogs`);
-                subscriber.next(rows);
+                subscriber.next(rows || []);
                 subscriber.complete();
                 this.logger.log('Subscriber completed');
               })
               .catch((err) => {
+                isQueryComplete = true;
                 this.logger.error('Failed to query dogs:', err);
                 subscriber.error(err);
               })
               .finally(() => {
                 void queryRunner.release();
-                this.logger.log('Query runner released');
+                this.logger.log('Search dogs query runner released');
               });
           });
       });
 
       // cleanup effect
       return () => {
-        if (!dogs) {
+        if (!isQueryComplete && processId) {
           this.logger.log('Cleanup: cancelling query for PID:', processId);
           // we must cancel the query using a new query runner :(
-          const queryRunner = this.dataSource.createQueryRunner();
-          queryRunner
+          const cancelRunner = this.dataSource.createQueryRunner();
+          cancelRunner
             .connect()
             .then(() => {
-              if (!processId) {
-                this.logger.log('No PID available to cancel');
-                return;
-              }
-              return queryRunner
+              return cancelRunner
                 .query('SELECT pg_cancel_backend($1)', [processId])
                 .then(() =>
                   this.logger.log(
@@ -98,8 +95,8 @@ export class AppService {
               subscriber.error(err);
             })
             .finally(() => {
-              void queryRunner.release();
-              this.logger.log('Query runner released');
+              void cancelRunner.release();
+              this.logger.log('Cancel query runner released');
             });
         }
       };
