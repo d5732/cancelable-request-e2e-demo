@@ -1,4 +1,4 @@
-# E2E Cancelable Requests
+# Cancelable Request E2E Demo
 
 Demonstrates rxjs observable used to cancel a running query in postgres
 
