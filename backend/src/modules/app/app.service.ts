@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable } from 'rxjs';
@@ -103,17 +104,31 @@ export class AppService {
     });
   }
 
-  async seedDogs(count: number) {
-    const dogs: Dog[] = [];
+  async seedDogs(totalCount: number) {
+    const CHUNK_SIZE = 10000;
+    const chunks = Math.ceil(totalCount / CHUNK_SIZE);
+    let seededCount = 0;
 
-    for (let i = 0; i < count; i++) {
-      const dog = this.dogRepository.create({
-        name: `Dog ${new Date().getTime()}`,
-      });
-      dogs.push(dog);
+    for (let chunk = 0; chunk < chunks; chunk++) {
+      const currentChunkSize = Math.min(CHUNK_SIZE, totalCount - seededCount);
+      const dogs: Dog[] = [];
+
+      for (let i = 0; i < currentChunkSize; i++) {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const dog = this.dogRepository.create({
+          name: `${firstName}bark ${lastName}dog`,
+        });
+        dogs.push(dog);
+      }
+
+      await this.dogRepository.save(dogs);
+      seededCount += currentChunkSize;
+      this.logger.log(
+        `Seeded ${seededCount}/${totalCount} dogs (chunk ${chunk + 1}/${chunks})`,
+      );
     }
 
-    await this.dogRepository.save(dogs);
-    console.log(`Seeded ${count} dogs.`);
+    this.logger.log(`Completed seeding ${seededCount} dogs`);
   }
 }
