@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable, fromEvent, takeUntil } from 'rxjs';
+import { Observable, defaultIfEmpty, fromEvent, takeUntil } from 'rxjs';
 import { createLogger } from '../../utils';
 
 @Injectable()
@@ -19,6 +19,10 @@ export class UnsubscribeOnCloseInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
     const close = fromEvent(request, 'close');
     this.logger.log('Calling next.handle()');
-    return next.handle().pipe(takeUntil(close));
+    return next.handle().pipe(
+      takeUntil(close),
+      // Prevent 'no elements in sequence' error when request is closed before any value is emitted
+      defaultIfEmpty(null),
+    );
   }
 }
