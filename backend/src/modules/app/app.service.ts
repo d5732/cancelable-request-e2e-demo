@@ -1,9 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable } from 'rxjs';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
 import { createLogger } from '../../utils';
 import { Dog } from './entities/dog.entity';
 
@@ -12,7 +11,6 @@ interface PgBackendPid {
 }
 
 @Injectable()
-@ApiTags('dogs')
 export class AppService {
   constructor(
     @InjectRepository(Dog)
@@ -32,14 +30,7 @@ export class AppService {
    * Close connection 2
    * Close connection 1
    */
-  @ApiOperation({ summary: 'Get dogs with cancelable query' })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns a list of dogs. Query can be cancelled by closing the connection.',
-    type: [Dog],
-  })
-  getDogsOrTerminatePidOnClose(): Observable<Dog[]> {
+  searchDogsByNameOrTerminatePidOnClose(name: string): Observable<Dog[]> {
     return new Observable<Dog[]>((subscriber) => {
       const queryRunner = this.dataSource.createQueryRunner();
 
@@ -60,7 +51,7 @@ export class AppService {
             // query for dogs
             queryRunner
               .query('SELECT * FROM dogs where name ilike $1 limit 500', [
-                '%name%',
+                `%${name}%`,
               ])
               .then((rows: Dog[]) => {
                 dogs = rows;
@@ -71,6 +62,7 @@ export class AppService {
               })
               .catch((err) => {
                 this.logger.error('Failed to query dogs:', err);
+                subscriber.error(err);
               })
               .finally(() => {
                 void queryRunner.release();
@@ -103,6 +95,7 @@ export class AppService {
             })
             .catch((err) => {
               this.logger.error('Failed to cancel query:', err);
+              subscriber.error(err);
             })
             .finally(() => {
               void queryRunner.release();
@@ -113,12 +106,19 @@ export class AppService {
     });
   }
 
-  @ApiOperation({ summary: 'Seed the database with dogs' })
-  @ApiResponse({
-    status: 200,
-    description: 'Seeds the database with the specified number of dogs',
-    type: Number,
-  })
+  searchDogsByName(name: string): Promise<Dog[]> {
+    try {
+      return this.dogRepository.find({
+        where: {
+          name: ILike(`%${name}%`),
+        },
+      });
+    } catch (error) {
+      this.logger.error('Failed to search dogs:', error);
+      throw error;
+    }
+  }
+
   async seedDogs(totalCount: number) {
     const CHUNK_SIZE = 10000;
     const chunks = Math.ceil(totalCount / CHUNK_SIZE);

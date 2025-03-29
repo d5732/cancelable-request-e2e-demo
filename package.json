@@ -1,6 +1,6 @@
 {
   "name": "cancelable-request-e2e-demo",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "propagate request termination from frontend to backend to database",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,8 +9,7 @@
     "start:frontend": "cd frontend && npm start",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },
-  "author": "d5732",
-  "license": "ISC",
+  "author": "d5732@github.com",
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
