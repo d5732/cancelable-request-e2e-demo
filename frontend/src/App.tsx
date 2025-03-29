@@ -16,56 +16,6 @@ import "./App.css";
 const BACKEND_URL = "http://localhost:3000";
 
 function App() {
-  const [abortControllers, setAbortControllers] = useState<
-    Map<string, AbortController>
-  >(new Map());
-  const [loading, setLoading] = useState(false);
-  const [options, setOptions] = useState<Dog[]>([]);
-
-  async function fetchWithAbortController(
-    url: RequestInfo | URL,
-    inputId: string
-  ) {
-    const ac = new AbortController();
-    setAbortControllers((prev) => new Map(prev).set(inputId, ac));
-
-    try {
-      setLoading(true);
-      const response = await fetch(url, {
-        signal: ac.signal,
-      });
-      const data = await response.json();
-      setOptions(data);
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Fetch aborted");
-      } else {
-        console.error("Error fetching dogs:", error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchWithoutAbortController(url: RequestInfo | URL) {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setOptions(data);
-    } catch (error) {
-      console.error("Error fetching dogs:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function abortPreviousFetch(inputId: string) {
-    const controller = abortControllers.get(inputId);
-    if (controller && !controller.signal.aborted) {
-      controller.abort();
-    }
-  }
-
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -140,40 +90,13 @@ function App() {
 
         <div className="card">
           <H2>With Abort and Cancelable Query 🤓</H2>
-          <Autocomplete<Dog>
-            options={options}
-            loading={loading}
-            getOptionLabel={(option: Dog) => option.name}
-            onChange={(_: unknown, newValue: Dog | null) => {
-              console.log("Selected:", newValue);
-            }}
-            onInputChange={(_: unknown, newInputValue: string) => {
-              const queryKey = "with-abort-cancelable";
-              abortPreviousFetch(queryKey);
-              fetchWithAbortController(
-                `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
-                  newInputValue
-                )}`,
-                queryKey
-              );
-            }}
-            renderInput={(params: AutocompleteRenderInputParams) => (
-              <TextField
-                {...params}
-                label="Search dogs (cancelable database query)"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
+          <AutocompleteWrapper
+            label="Search dogs (cancelable database query)"
+            getUrl={(inputValue) =>
+              `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
+                inputValue
+              )}`
+            }
           />
           <Box sx={{ mt: 2 }}>
             <P sx={{ mb: 2 }}>
@@ -219,40 +142,13 @@ function App() {
 
         <div className="card">
           <H2>With Abort 🤔</H2>
-          <Autocomplete<Dog>
-            options={options}
-            loading={loading}
-            getOptionLabel={(option: Dog) => option.name}
-            onChange={(_: unknown, newValue: Dog | null) => {
-              console.log("Selected:", newValue);
-            }}
-            onInputChange={(_: unknown, newInputValue: string) => {
-              const queryKey = "with-abort";
-              abortPreviousFetch(queryKey);
-              fetchWithAbortController(
-                `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
-                  newInputValue
-                )}`,
-                queryKey
-              );
-            }}
-            renderInput={(params: AutocompleteRenderInputParams) => (
-              <TextField
-                {...params}
-                label="Search dogs"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
+          <AutocompleteWrapper
+            label="Search dogs"
+            getUrl={(inputValue) =>
+              `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
+                inputValue
+              )}`
+            }
           />
           <Box sx={{ mt: 2 }}>
             <P sx={{ mb: 2 }}>
@@ -299,38 +195,14 @@ function App() {
 
         <div className="card">
           <H2>Without Abort 😅</H2>
-          <Autocomplete<Dog>
-            options={options}
-            loading={loading}
-            getOptionLabel={(option: Dog) => option.name}
-            onChange={(_: unknown, newValue: Dog | null) => {
-              console.log("Selected:", newValue);
-            }}
-            onInputChange={(_: unknown, newInputValue: string) => {
-              // Fetch without abort controller
-              fetchWithoutAbortController(
-                `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
-                  newInputValue
-                )}`
-              );
-            }}
-            renderInput={(params: AutocompleteRenderInputParams) => (
-              <TextField
-                {...params}
-                label="Search dogs"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
-              />
-            )}
+          <AutocompleteWrapper
+            useAbortController={false}
+            label="Search dogs"
+            getUrl={(inputValue) =>
+              `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
+                inputValue
+              )}`
+            }
           />
           <Box sx={{ mt: 2 }}>
             <P sx={{ mb: 2 }}>
@@ -370,6 +242,86 @@ function App() {
     </ThemeProvider>
   );
 }
+
+const AutocompleteWrapper = ({
+  label,
+  getUrl,
+  useAbortController = true,
+}: {
+  label: string;
+  getUrl: (inputValue: string) => string;
+  useAbortController?: boolean;
+}) => {
+  const [options, setOptions] = useState<Dog[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
+
+  const abortPreviousFetch = () => {
+    if (
+      useAbortController &&
+      abortController &&
+      !abortController.signal.aborted
+    ) {
+      abortController.abort();
+    }
+  };
+
+  const fetchWithAbortController = async (url: RequestInfo | URL) => {
+    const abortController = useAbortController ? new AbortController() : null;
+    setAbortController(abortController);
+
+    try {
+      setLoading(true);
+      const response = await fetch(url, {
+        signal: useAbortController ? abortController!.signal : undefined,
+      });
+      const data = await response.json();
+      setOptions(data);
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("Fetch aborted");
+      } else {
+        console.error("Error fetching dogs:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Autocomplete<Dog>
+      options={options}
+      loading={loading}
+      getOptionLabel={(option) => option.name}
+      getOptionKey={(option) => option.id}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      onInputChange={(_: unknown, newInputValue: string) => {
+        abortPreviousFetch();
+        fetchWithAbortController(getUrl(newInputValue));
+      }}
+      renderInput={(params: AutocompleteRenderInputParams) => (
+        <TextField
+          {...params}
+          label={label}
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            },
+          }}
+        />
+      )}
+    />
+  );
+};
 
 const P = ({ children, ...props }: TypographyProps) => (
   <Typography variant="body1" component="p" {...props}>
