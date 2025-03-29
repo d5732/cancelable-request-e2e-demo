@@ -3,6 +3,18 @@ import { DataSource } from 'typeorm';
 
 dotenv.config({ path: './config/database.env' });
 
+(() => {
+  console.log('Database Configuration:');
+  console.log('Host:', process.env.POSTGRES_HOST);
+  console.log('Port:', process.env.POSTGRES_PORT);
+  console.log('User:', process.env.POSTGRES_USER);
+  console.log('Database:', process.env.POSTGRES_DB);
+  console.log(
+    'Password:',
+    process.env.POSTGRES_PASSWORD ? '[REDACTED]' : undefined,
+  );
+})();
+
 export const appDataSourceOptions = {
   type: 'postgres' as const,
   host: process.env.POSTGRES_HOST,
