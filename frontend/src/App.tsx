@@ -30,31 +30,48 @@ function App() {
             <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4">
               RFC 7230
             </a>
-            ) state that "A client ought to limit the number of simultaneous
-            open connections that it maintains to a given server."
+            ) define connection management principles that impact modern web
+            applications. The specification states that "A client ought to limit
+            the number of simultaneous open connections that it maintains to a
+            given server."
           </P>
+
           <P sx={{ mb: 2 }}>
-            <b>6 connections per server</b> is the typical limit set by modern
-            browsers. This is a built-in throttling mechanism to protect backend
-            servers from UIs that send many requests haphazardly, as suggested
-            by RFC 7230.
+            Modern browsers implement this recommendation by limiting concurrent
+            connections to <b>6 per server</b>. This built-in throttling
+            mechanism protects backend servers from excessive load, particularly
+            from UIs that generate rapid-fire requests.
           </P>
+
           <P sx={{ mb: 2 }}>
-            However, this can be a problem for some UIs, where frequent state
-            changes require new data to be fetched. The browser's native
-            throttling could create a backlog of requests, slow down reactivity,
-            create race conditions, etc.
+            However, this limitation presents challenges for dynamic UIs that
+            require frequent data updates. The browser's connection limit can
+            create request backlogs, reduce UI responsiveness, and lead to race
+            conditions when multiple requests are in flight.
           </P>
+
           <P sx={{ mb: 2 }}>
-            The AbortController API provides a frontend mechanism to terminate
-            ongoing HTTP requests by closing the underlying connection.
+            The AbortController API offers a solution by enabling frontend
+            applications to terminate ongoing HTTP requests. This capability
+            raises important considerations:
           </P>
+
+          <Ul>
+            <Li>
+              <b>Request Frequency:</b> How does bypassing the browser's
+              connection limit affect the load on your backend?
+            </Li>
+            <Li>
+              <b>Resource Management:</b> Can your backend handle increased
+              request frequency when server-side operations continue running
+              after client disconnection?
+            </Li>
+          </Ul>
+
           <P sx={{ mb: 2 }}>
-            This raises a question, though:{" "}
-            <b>is your backend prepared to handle this?</b> When the frontend
-            closes the connection, any server-side processing that has already
-            begun may continue until completion unless explicitly handled by the
-            server.
+            While various strategies exist to improve backend request handling,
+            this demo explores implementations that gracefully terminate backend
+            operations when they're no longer needed by the frontend.
           </P>
 
           <H2>What Is This Demo App?</H2>
@@ -393,8 +410,8 @@ function Li({ children, color, isLast = false }: LiProps) {
   return (
     <li
       style={{
-        color: COLORS[color],
-        backgroundColor: `${COLORS[color]}15`,
+        color: color ? COLORS[color] : undefined,
+        backgroundColor: color ? `${COLORS[color]}15` : undefined,
         padding: "0.25rem 0.5rem",
         borderRadius: "4px",
         marginBottom: isLast ? 0 : "0.5rem",
@@ -405,17 +422,17 @@ function Li({ children, color, isLast = false }: LiProps) {
   );
 }
 
+interface LiProps {
+  children: React.ReactNode;
+  color?: keyof typeof COLORS;
+  isLast?: boolean;
+}
+
 interface Dog {
   id: number;
   name: string;
   created_at: string;
   updated_at: string;
-}
-
-interface LiProps {
-  children: React.ReactNode;
-  color: keyof typeof COLORS;
-  isLast?: boolean;
 }
 
 const COLORS = {
