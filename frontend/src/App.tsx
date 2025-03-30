@@ -293,6 +293,50 @@ function App() {
             </P>
           </Box>
         </div>
+
+        <H1>Conclusion</H1>
+
+        <div className="card">
+          <P sx={{ mb: 2 }}>
+            While implementing backend query cancellation can optimize resource
+            usage, this approach has some shortcomings and pitfalls.
+          </P>
+
+          <H2>Implementation Challenges</H2>
+          <Ul>
+            <Li>
+              <b>Connection Management:</b> The backend requires a separate
+              database connection to execute the <code>pg_cancel_backend</code>{" "}
+              command. If the connection pool is exhausted, the cancellation
+              request must wait for a connection to become available.
+            </Li>
+            <Li>
+              <b>Timing Issues:</b> Other backend operations may delay the
+              execution of query cancellation logic, reducing its effectiveness.
+            </Li>
+            <Li>
+              <b>Technical Complexity:</b> The implementation requires
+              familiarity with RxJS and increases overall code complexity.
+            </Li>
+          </Ul>
+
+          <P sx={{ mb: 2 }}>
+            Before implementing this pattern, consider more conventional
+            approaches to improve backend performance and reliability:
+          </P>
+          <Ul>
+            <Li>
+              <b>Database Optimization:</b> If you can improve query performance
+              easily, it may matter far less that queries are not canceled when
+              the frontend aborts a request.
+            </Li>
+            <Li>
+              <b>Request Throttling:</b> Reducing request frequency through
+              throttling or debouncing can also be a good approach, if it
+              doesn't significantly hinder UX.
+            </Li>
+          </Ul>
+        </div>
       </div>
     </ThemeProvider>
   );
