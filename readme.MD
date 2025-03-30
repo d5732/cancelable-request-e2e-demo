@@ -43,6 +43,8 @@ This document describes the flow of a cancelable HTTP request in this applicatio
 - In project root, open a terminal and run the following commands:
 
 ```
+cp backend/config/database.env.example backend/config/database.env;
+# vim backend/config/database.env; # optional: customize database env vars
 nvm use;
 npm run install:all;
 npm run start;
