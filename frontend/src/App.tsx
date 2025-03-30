@@ -64,6 +64,15 @@ function App() {
           <P sx={{ mb: 2 }}>
             The backend is a Node.js API with a PostgreSQL database.
           </P>
+          <P sx={{ mb: 2 }}>
+            The database's dog table's{" "}
+            <b>
+              <code>name</code>
+            </b>{" "}
+            column is deliberately <b>not indexed</b>, forcing a full table
+            scan. This is to ensure the query is slow enough to observe the
+            impact of cancelable requests.
+          </P>
         </div>
 
         <H1>Setup Instructions</H1>
@@ -74,18 +83,15 @@ function App() {
             threshold for observation.
           </P>
           <P sx={{ mb: 2 }}>
-            Navigate to the backend's{" "}
+            Navigate to{" "}
             <a href="http://localhost:3000/swagger#/dogs/AppController_seedDogs">
               Swagger UI
             </a>{" "}
-            and seed the database with dog records. On my machine, I had to seed
+            to seed the database with dog records. On my machine, I had to seed
             at least 1 million dog records before the query took longer than 1
             second.
           </P>
-          <P sx={{ mb: 2 }}>
-            The dog table's <code>name</code> column is deliberately not
-            indexed, to make the query slow.
-          </P>
+
           <H2>Observe Resource Impact</H2>
           <P sx={{ mb: 2 }}>Open a terminal and run:</P>
           <Typography
@@ -145,11 +151,11 @@ function App() {
             </P>
             <P sx={{ mb: 2 }}>
               You will likely notice the native browser throttling mechanism is
-              effective, as the database CPU % should remain lower.
+              effective, as the database <code>CPU %</code> should remain lower.
             </P>
             <P sx={{ mb: 2 }}>
               Because no requests are canceled, pending requests pile up on the
-              frontend, and take longer to cycle through. However, the backend
+              frontend and take longer to cycle through. However, the backend
               and database saturation should be smoother instead of spiking, as
               we saw in the other examples.
             </P>
@@ -197,15 +203,13 @@ function App() {
               early.
             </P>
             <P sx={{ mb: 2 }}>
-              On my machine, I was able to trigger ~400 HTTP requets in 10
-              seconds by typing random characters. I saw the database CPU %
-              spike to about 1200% while typing.
+              On my machine, I was able to trigger ~400 HTTP requests in 10
+              seconds by typing random characters. I saw the database{" "}
+              <code>CPU %</code> spike to about 1200% while typing.
             </P>
             <P sx={{ mb: 2 }}>
-              After stopping typing, database CPU % returned to ~0% in around 20
-              seconds. This is because TypeOrm's limit of concurrent database
-              connections causes requests to pile up, placing high demand on
-              database CPU % for a long time.
+              After stopping typing, database <code>CPU %</code> returned to ~0%
+              in just a few seconds.
             </P>
           </Box>
         </div>
@@ -230,8 +234,8 @@ function App() {
               database query.
             </P>
             <P sx={{ mb: 2 }}>
-              This frees database resources faster, if the frontend aborts the
-              aborts the fetch.
+              This frees database resources faster when the frontend aborts the
+              fetch.
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
@@ -245,19 +249,19 @@ function App() {
             <H2>Expected Behavior</H2>
             <P sx={{ mb: 2 }}>
               The frontend should abort the fetch if the user keeps typing.
-              However, because the backend implementation terminates the backend
-              query when the connection is closed, database resources should be
-              freed much faster, even when the user types quickly, emitting
-              numerous requests.
+              However, because the backend implementation terminates the
+              database query when the connection is closed, database resources
+              should be freed much faster, even when the user types quickly,
+              emitting numerous requests.
             </P>
             <P sx={{ mb: 2 }}>
-              On my machine, I was able to trigger ~400 HTTP requets in 10
-              seconds by typing random characters. I saw the database CPU %
-              spike to about 1200% while typing.
+              On my machine, I was able to trigger ~400 HTTP requests in 10
+              seconds by typing random characters. I saw the database{" "}
+              <code>CPU %</code> spike to about 1200% while typing.
             </P>
             <P sx={{ mb: 2 }}>
-              After stopping typing, database CPU % returned to ~0% in just a
-              few seconds.
+              After stopping typing, database <code>CPU %</code> returned to ~0%
+              in just a few seconds.
             </P>
           </Box>
         </div>
