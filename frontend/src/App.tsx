@@ -62,9 +62,8 @@ function App() {
               connection limit affect the load on your backend?
             </Li>
             <Li>
-              <b>Resource Management:</b> Can your backend handle increased
-              request frequency when server-side operations continue running
-              after client disconnection?
+              <b>Resource Management:</b> Can your backend handle the increased
+              request frequency?
             </Li>
           </Ul>
 
