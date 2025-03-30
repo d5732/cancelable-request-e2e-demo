@@ -50,13 +50,11 @@ function App() {
             ongoing HTTP requests by closing the underlying connection.
           </P>
           <P sx={{ mb: 2 }}>
-            When the frontend closes the connection, any server-side processing
-            that has already begun may continue until completion unless
-            explicitly handled by the server.
-          </P>
-          <P sx={{ mb: 2 }}>
-            This raises a question, though: is your backend prepared to handle
-            this?
+            This raises a question, though:{" "}
+            <b>is your backend prepared to handle this?</b> When the frontend
+            closes the connection, any server-side processing that has already
+            begun may continue until completion unless explicitly handled by the
+            server.
           </P>
 
           <H2>What Is This Demo App?</H2>
