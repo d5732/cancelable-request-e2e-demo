@@ -20,3 +20,22 @@ Demonstrates rxjs observable used to cancel a running query in postgres
      - Create Connection 2
      - Cancel query using PID from Connection 1
      - Release Connection 2
+
+## Requirements
+
+- node.js
+- npm
+- nvm
+- docker
+
+## Getting Started
+
+- In project root, open a terminal and run the following commands:
+
+```
+nvm use;
+npm run install:all;
+npm run start;
+```
+
+- Then, open your web browser and navigate to http://localhost:5173
