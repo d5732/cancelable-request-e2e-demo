@@ -11,11 +11,8 @@ async function bootstrap() {
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('Cancelable Request API')
-    .setDescription(
-      'API for demonstrating cancelable requests with PostgreSQL. Note: The dog search is currently hardcoded to search for dogs with a name including "peter".',
-    )
-    .setVersion('1.0')
-    .addTag('dogs')
+    .setDescription('API for demonstrating cancelable PostgreSQL queries')
+    .setVersion('0.0.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
