@@ -91,7 +91,7 @@ function App() {
         <div className="card">
           <H2>With Abort and Cancelable Query 🤓</H2>
           <AutocompleteWrapper
-            label="Search dogs (cancelable database query)"
+            label="Search dogs by name (cancelable database query)"
             getUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
                 inputValue
@@ -143,7 +143,7 @@ function App() {
         <div className="card">
           <H2>With Abort 🤔</H2>
           <AutocompleteWrapper
-            label="Search dogs"
+            label="Search dogs by name"
             getUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
                 inputValue
@@ -163,13 +163,14 @@ function App() {
             <P sx={{ mb: 2 }}>
               By aborting early and creating new requests rapidly, we
               effectively bypass the browser's native limit of concurrent
-              same-origin connections, increasing the load on the backend.
+              same-origin connections, potentially increasing the load on the
+              backend.
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
               <Li color="success">Prevents request race conditions</Li>
               <Li color="error" isLast>
-                Increases concurrent load on the backend and database
+                Increases concurrent load on backend resources
               </Li>
             </Ul>
             <H2>Expected Behavior</H2>
@@ -197,7 +198,7 @@ function App() {
           <H2>Without Abort 😅</H2>
           <AutocompleteWrapper
             useAbortController={false}
-            label="Search dogs"
+            label="Search dogs by name"
             getUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
                 inputValue
