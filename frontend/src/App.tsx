@@ -21,8 +21,10 @@ function App() {
       <CssBaseline />
       <div className="container">
         <H1>Cancelable Requests E2E</H1>
+
         <div className="card">
           <H2>Why Would You Want to Cancel a Request?</H2>
+
           <P sx={{ mb: 2 }}>
             HTTP/1.1 specifications (
             <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4">
@@ -44,18 +46,21 @@ function App() {
             create race conditions, etc.
           </P>
           <P sx={{ mb: 2 }}>
-            The AbortController API provides a mechanism to terminate ongoing
-            HTTP requests by closing the underlying connection. This is
-            effectively equivalent to closing a browser tab while a request is
-            in progress.
+            The AbortController API provides a frontend mechanism to terminate
+            ongoing HTTP requests by closing the underlying connection.
           </P>
           <P sx={{ mb: 2 }}>
-            When the connection is terminated, any server-side processing that
-            has already begun may continue until completion unless explicitly
-            handled by the server.
+            When the frontend closes the connection, any server-side processing
+            that has already begun may continue until completion unless
+            explicitly handled by the server.
+          </P>
+          <P sx={{ mb: 2 }}>
+            This raises a question, though: is your backend prepared to handle
+            this?
           </P>
 
           <H2>What Is This Demo App?</H2>
+
           <P sx={{ mb: 2 }}>
             To demonstrate different tradeoffs, this demo app shows 3 different
             approaches for an autocomplete typeahead that fetches data from a
@@ -76,8 +81,10 @@ function App() {
         </div>
 
         <H1>Setup Instructions</H1>
+
         <div className="card">
           <H2>Create an Environment with a Slow Database Query</H2>
+
           <P sx={{ mb: 2 }}>
             First, we need a database query that is slow enough to give a good
             threshold for observation.
@@ -93,6 +100,7 @@ function App() {
           </P>
 
           <H2>Observe Resource Impact</H2>
+
           <P sx={{ mb: 2 }}>Open a terminal and run:</P>
           <Typography
             variant="body1"
@@ -118,6 +126,7 @@ function App() {
 
         <div className="card">
           <H2>1. Without Abort 😅</H2>
+
           <AutocompleteWrapper
             useAbortController={false}
             label="Search dogs by name"
@@ -164,6 +173,7 @@ function App() {
 
         <div className="card">
           <H2>2. With Abort 🤔</H2>
+
           <AutocompleteWrapper
             label="Search dogs by name"
             getUrl={(inputValue) =>
@@ -216,6 +226,7 @@ function App() {
 
         <div className="card">
           <H2>3. With Abort and Cancelable Query 🤓</H2>
+
           <AutocompleteWrapper
             label="Search dogs by name (cancelable database query)"
             getUrl={(inputValue) =>
@@ -238,6 +249,7 @@ function App() {
               fetch.
             </P>
             <H2>Tradeoffs</H2>
+
             <Ul>
               <Li color="success">
                 Optimizes resource utilization through immediate deallocation
@@ -247,6 +259,7 @@ function App() {
               </Li>
             </Ul>
             <H2>Expected Behavior</H2>
+
             <P sx={{ mb: 2 }}>
               The frontend should abort the fetch if the user keeps typing.
               However, because the backend implementation terminates the
