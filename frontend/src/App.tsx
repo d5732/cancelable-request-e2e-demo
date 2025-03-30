@@ -89,7 +89,7 @@ function App() {
         </div>
 
         <div className="card">
-          <H2>With Abort and Cancelable Query 🤓</H2>
+          <H2>1. With Abort and Cancelable Query 🤓</H2>
           <AutocompleteWrapper
             label="Search dogs by name (cancelable database query)"
             getUrl={(inputValue) =>
@@ -141,7 +141,7 @@ function App() {
         </div>
 
         <div className="card">
-          <H2>With Abort 🤔</H2>
+          <H2>2. With Abort 🤔</H2>
           <AutocompleteWrapper
             label="Search dogs by name"
             getUrl={(inputValue) =>
@@ -195,7 +195,7 @@ function App() {
         </div>
 
         <div className="card">
-          <H2>Without Abort 😅</H2>
+          <H2>3. Without Abort 😅</H2>
           <AutocompleteWrapper
             useAbortController={false}
             label="Search dogs by name"
