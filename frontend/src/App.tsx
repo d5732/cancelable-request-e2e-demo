@@ -58,29 +58,35 @@ function App() {
           <H2>What Is This Demo App?</H2>
           <P sx={{ mb: 2 }}>
             To demonstrate different tradeoffs, this demo app shows 3 different
-            approaches for fetching data for an autocomplete typeahead from a
-            backend API.
+            approaches for an autocomplete typeahead that fetches data from a
+            backend API about dogs. 🐕
           </P>
           <P sx={{ mb: 2 }}>
             The backend is a Node.js API with a PostgreSQL database.
           </P>
         </div>
 
+        <H1>Setup Instructions</H1>
         <div className="card">
-          <H2>Testing Setup Instructions</H2>
+          <H2>Create an Environment with a Slow Database Query</H2>
+          <P sx={{ mb: 2 }}>
+            First, we need a database query that is slow enough to give a good
+            threshold for observation.
+          </P>
           <P sx={{ mb: 2 }}>
             Navigate to the backend's{" "}
             <a href="http://localhost:3000/swagger#/dogs/AppController_seedDogs">
               Swagger UI
             </a>{" "}
             and seed the database with dog records. On my machine, I had to seed
-            at least 1 million dog records to get most queries to take longer
-            than 1 second, which is a good threshold for observation.
+            at least 1 million dog records before the query took longer than 1
+            second.
           </P>
           <P sx={{ mb: 2 }}>
             The dog table's <code>name</code> column is deliberately not
             indexed, to make the query slow.
           </P>
+          <H2>Observe Resource Impact</H2>
           <P sx={{ mb: 2 }}>Open a terminal and run:</P>
           <Typography
             variant="body1"

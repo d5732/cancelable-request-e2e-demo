@@ -10,46 +10,9 @@ interface SeedResponse {
 }
 
 @Controller('v1/dogs')
-@ApiTags('dogs')
+@ApiTags('Dogs')
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  @Get('search')
-  @ApiOperation({ summary: 'Search dogs' })
-  @ApiQuery({
-    name: 'name',
-    required: true,
-    description: 'Search term for dog names',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns a list of dogs',
-    type: [Dog],
-  })
-  searchDogs(@Query('name') name: string): Promise<Dog[]> {
-    return this.appService.searchDogsByName(name);
-  }
-
-  @Get('cancelable/search')
-  @ApiOperation({
-    summary: 'Search dogs (query canceled on request closed by client)',
-  })
-  @ApiQuery({
-    name: 'name',
-    required: true,
-    description: 'Search term for dog names',
-  })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Returns a list of dogs. Query can be cancelled by closing the connection.',
-    type: [Dog],
-  })
-  searchDogsWithCancelableQuery(
-    @Query('name') name: string,
-  ): Observable<Dog[]> {
-    return this.appService.searchDogsByNameOrTerminatePidOnClose(name);
-  }
 
   @Post('seed')
   @ApiOperation({ summary: 'Seed the database with dogs' })
@@ -66,5 +29,40 @@ export class AppController {
   })
   seedDogs(@Query('count') count: number): Promise<SeedResponse> {
     return this.appService.seedDogs(count);
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search dogs' })
+  @ApiQuery({
+    name: 'name',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a list of dogs',
+    type: [Dog],
+  })
+  searchDogs(@Query('name') name: string): Promise<Dog[]> {
+    return this.appService.searchDogsByName(name);
+  }
+
+  @Get('cancelable/search')
+  @ApiOperation({
+    summary: 'Search dogs (cancelable database query)',
+  })
+  @ApiQuery({
+    name: 'name',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns a list of dogs. Query can be cancelled by closing the connection.',
+    type: [Dog],
+  })
+  searchDogsWithCancelableQuery(
+    @Query('name') name: string,
+  ): Observable<Dog[]> {
+    return this.appService.searchDogsByNameOrTerminatePidOnClose(name);
   }
 }
