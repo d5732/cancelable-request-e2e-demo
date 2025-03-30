@@ -53,19 +53,12 @@ function App() {
           <P sx={{ mb: 2 }}>
             The AbortController API offers a solution by enabling frontend
             applications to terminate ongoing HTTP requests. This capability
-            raises important considerations:
+            raises an important question:{" "}
+            <b>
+              How does bypassing the browser's connection limit affect the load
+              on your backend?
+            </b>
           </P>
-
-          <Ul>
-            <Li>
-              <b>Request Frequency:</b> How does bypassing the browser's
-              connection limit affect the load on your backend?
-            </Li>
-            <Li>
-              <b>Resource Management:</b> Can your backend handle the increased
-              request frequency?
-            </Li>
-          </Ul>
 
           <P sx={{ mb: 2 }}>
             While various strategies exist to improve backend request handling,
