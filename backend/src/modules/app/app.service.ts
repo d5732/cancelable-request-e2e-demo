@@ -49,10 +49,13 @@ export class AppService {
             this.logger.log('Got PID:', processId);
 
             // query for dogs
-            queryRunner
-              .query('SELECT * FROM dogs where name ilike $1 limit 500', [
-                `%${name}%`,
-              ])
+            queryRunner.manager
+              .find(Dog, {
+                where: {
+                  name: ILike(`%${name}%`),
+                },
+                take: 500,
+              })
               .then((rows: Dog[]) => {
                 isQueryComplete = true;
                 this.logger.log(`Next'ing ${rows?.length} dogs`);
