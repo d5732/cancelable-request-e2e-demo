@@ -20,19 +20,28 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <div className="container">
-        <H1>Cancelable Requests</H1>
-
+        <H1>Cancelable Requests E2E</H1>
         <div className="card">
-          <H2>Background</H2>
+          <H2>Why Would You Want to Cancel a Request?</H2>
           <P sx={{ mb: 2 }}>
             HTTP/1.1 specifications (
             <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4">
               RFC 7230
             </a>
             ) state that "A client ought to limit the number of simultaneous
-            open connections that it maintains to a given server." Modern
-            browsers typically limit concurrent connections to 6 per server, as
-            a built-in throttling mechanism.
+            open connections that it maintains to a given server."
+          </P>
+          <P sx={{ mb: 2 }}>
+            <b>6 connections per server</b> is the typical limit set by modern
+            browsers. This is a built-in throttling mechanism to protect backend
+            servers from UIs that send many requests haphazardly, as suggested
+            by RFC 7230.
+          </P>
+          <P sx={{ mb: 2 }}>
+            However, this can be a problem for some UIs, where frequent state
+            changes require new data to be fetched. The browser's native
+            throttling could create a backlog of requests, slow down reactivity,
+            create race conditions, etc.
           </P>
           <P sx={{ mb: 2 }}>
             The AbortController API provides a mechanism to terminate ongoing
@@ -45,15 +54,20 @@ function App() {
             has already begun may continue until completion unless explicitly
             handled by the server.
           </P>
+
+          <H2>What Is This Demo App?</H2>
           <P sx={{ mb: 2 }}>
-            To demonstrate different tradeoffs, this demo app shows what happens
-            when searching for dogs by name in a backend API which relies on a
-            database, using 3 different approaches.
+            To demonstrate different tradeoffs, this demo app shows 3 different
+            approaches for fetching data for an autocomplete typeahead from a
+            backend API.
+          </P>
+          <P sx={{ mb: 2 }}>
+            The backend is a Node.js API with a PostgreSQL database.
           </P>
         </div>
 
         <div className="card">
-          <H2>Testing Setup</H2>
+          <H2>Testing Setup Instructions</H2>
           <P sx={{ mb: 2 }}>
             Navigate to the backend's{" "}
             <a href="http://localhost:3000/swagger#/dogs/AppController_seedDogs">
@@ -88,54 +102,50 @@ function App() {
           </P>
         </div>
 
+        <H1>Implementation Examples</H1>
+
         <div className="card">
-          <H2>1. With Abort and Cancelable Query 🤓</H2>
+          <H2>1. Without Abort 😅</H2>
           <AutocompleteWrapper
-            label="Search dogs by name (cancelable database query)"
+            useAbortController={false}
+            label="Search dogs by name"
             getUrl={(inputValue) =>
-              `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
+              `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
                 inputValue
               )}`
             }
           />
           <Box sx={{ mt: 2 }}>
             <P sx={{ mb: 2 }}>
-              The frontend uses an AbortController to abort HTTP requests when
-              the search term changes.
+              In this example, the frontend foregoes request termination
+              entirely, allowing concurrent requests to complete regardless of
+              input state changes.
             </P>
             <P sx={{ mb: 2 }}>
-              The backend handles closed HTTP connections by terminating the
-              database query.
-            </P>
-            <P sx={{ mb: 2 }}>
-              This frees database resources faster, if the frontend aborts the
-              aborts the fetch.
+              Browser-level request throttling mechanisms provide inherent rate
+              limiting for same-origin requests, mitigating potential system
+              overload.
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
-              <Li color="success">
-                Optimizes resource utilization through immediate deallocation
-              </Li>
+              <Li color="success">Minimal implementation complexity</Li>
               <Li color="error" isLast>
-                Requires complex implementation across multiple system layers
+                Only suitable for simple applications
               </Li>
             </Ul>
             <H2>Expected Behavior</H2>
             <P sx={{ mb: 2 }}>
-              The frontend should abort the fetch if the user keeps typing.
-              However, because the backend implementation terminates the backend
-              query when the connection is closed, database resources should be
-              freed much faster, even when the user types quickly, emitting
-              numerous requests.
+              The frontend will not abort the fetch if the user keeps typing.
             </P>
             <P sx={{ mb: 2 }}>
-              On my machine, I was able to trigger ~400 HTTP requets in 10
-              seconds by typing random characters. I saw the database CPU %
-              spike to about 1200% while typing.
+              You will likely notice the native browser throttling mechanism is
+              effective, as the database CPU % should remain lower.
             </P>
             <P sx={{ mb: 2 }}>
-              After stopping typing, database CPU % returned to ~0% in just a
-              few seconds.
+              Because no requests are canceled, pending requests pile up on the
+              frontend, and take longer to cycle through. However, the backend
+              and database saturation should be smoother instead of spiking, as
+              we saw in the other examples.
             </P>
           </Box>
         </div>
@@ -195,47 +205,53 @@ function App() {
         </div>
 
         <div className="card">
-          <H2>3. Without Abort 😅</H2>
+          <H2>3. With Abort and Cancelable Query 🤓</H2>
           <AutocompleteWrapper
-            useAbortController={false}
-            label="Search dogs by name"
+            label="Search dogs by name (cancelable database query)"
             getUrl={(inputValue) =>
-              `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
+              `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
                 inputValue
               )}`
             }
           />
           <Box sx={{ mt: 2 }}>
             <P sx={{ mb: 2 }}>
-              In this example, the frontend foregoes request termination
-              entirely, allowing concurrent requests to complete regardless of
-              input state changes.
+              The frontend uses an AbortController to abort HTTP requests when
+              the search term changes.
             </P>
             <P sx={{ mb: 2 }}>
-              Browser-level request throttling mechanisms provide inherent rate
-              limiting for same-origin requests, mitigating potential system
-              overload.
+              The backend handles closed HTTP connections by terminating the
+              database query.
+            </P>
+            <P sx={{ mb: 2 }}>
+              This frees database resources faster, if the frontend aborts the
+              aborts the fetch.
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
-              <Li color="success">Minimal implementation complexity</Li>
+              <Li color="success">
+                Optimizes resource utilization through immediate deallocation
+              </Li>
               <Li color="error" isLast>
-                Only suitable for simple applications
+                Requires complex implementation across multiple system layers
               </Li>
             </Ul>
             <H2>Expected Behavior</H2>
             <P sx={{ mb: 2 }}>
-              The frontend will not abort the fetch if the user keeps typing.
+              The frontend should abort the fetch if the user keeps typing.
+              However, because the backend implementation terminates the backend
+              query when the connection is closed, database resources should be
+              freed much faster, even when the user types quickly, emitting
+              numerous requests.
             </P>
             <P sx={{ mb: 2 }}>
-              You will likely notice the native browser throttling mechanism is
-              effective, as the database CPU % should remain lower.
+              On my machine, I was able to trigger ~400 HTTP requets in 10
+              seconds by typing random characters. I saw the database CPU %
+              spike to about 1200% while typing.
             </P>
             <P sx={{ mb: 2 }}>
-              Because no requests are canceled, pending requests pile up on the
-              frontend, and take longer to cycle through. However, the backend
-              and database saturation should be smoother instead of spiking, as
-              we saw in the other examples.
+              After stopping typing, database CPU % returned to ~0% in just a
+              few seconds.
             </P>
           </Box>
         </div>

@@ -1,25 +1,35 @@
-# Cancelable Request E2E Demo
+# Cancelable Request Flow
 
-Demonstrates rxjs observable used to cancel a running query in postgres
+This document describes the flow of a cancelable HTTP request in this application, from user input to database query cancellation.
 
-## Request Flow:
+## Request Flow
 
-1. User Types in Input → onChange Event → HTTP Request
-2. UnsubscribeOnCloseInterceptor:
+1. **User Input**
+
+   - User types in input field
+   - Triggers onChange event
+   - Initiates HTTP request
+
+2. **Request Interception**
+
    - Listens for request 'close' event
-   - Creates Observable with takeUntil(close)
-3. AppService.getDogsOrTerminatePidOnClose():
+   - Creates Observable with `takeUntil(close)`
+
+3. **Service Layer**
+
    - Creates Observable with cleanup function
    - Manages Database Connection 1
    - Handles query execution
    - Provides cleanup function for cancellation
-4. When Request Closes:
-   - Interceptor's takeUntil triggers unsubscribe
+
+4. **Request Cancellation**
+   When the request closes:
+   - Interceptor's `takeUntil` triggers unsubscribe
    - AppService's cleanup function runs
-   - If query hasn't completed (!dogs):
-     - Create Connection 2
-     - Cancel query using PID from Connection 1
-     - Release Connection 2
+   - If query hasn't completed:
+     - Creates Connection 2
+     - Cancels query using PID from Connection 1
+     - Releases Connection 2
 
 ## Requirements
 
