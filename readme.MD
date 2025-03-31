@@ -4,6 +4,8 @@ This demo shows a resource optimization approach where a canceled HTTP request t
 
 ## Request Flow
 
+![Request Flow](https://github.com/user-attachments/assets/0afd7d70-d9c9-4db8-831b-9664e31c8eae)
+
 1. **User Input**
 
    - User types in input field
