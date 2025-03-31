@@ -8,6 +8,9 @@ import { createLogger } from '../../utils';
 import { Dog } from './entities/dog.entity';
 
 interface PgClient extends _PgClient {
+  // In my experience, client.processID should be available at runtime. If not,
+  // you would need to add a preliminary query `SELECT pg_backend_pid()` before
+  // the real query to save the processId.
   processID: number;
 }
 
@@ -87,13 +90,17 @@ export class AppService {
       // Cleanup effect
       return () => {
         if (!isQueryComplete && processId) {
-          // queryRunner.release(); maybe?
           this.logger.log('Cleanup: cancelling query for PID:', processId);
           // We must cancel the query using a new query runner :(
           const cancelRunner = this.dataSource.createQueryRunner();
           cancelRunner
             .connect()
             .then(() => {
+              // Note: SELECT pg_cancel_backend($1) is not entirely safe! There
+              // is a small chance that if the backend is extremely slow to
+              // reach this point, a new process with the same PID may have
+              // already started. In that edge case, the WRONG process will be
+              // terminated.
               return cancelRunner
                 .query('SELECT pg_cancel_backend($1)', [processId])
                 .then(() =>
@@ -112,11 +119,22 @@ export class AppService {
               this.logger.log('Cancel query runner released');
             });
         }
+
+        // For reference, here are some other approaches that won't work:
+
+        // Note: the below code is not viable! It will NOT cancel the database
+        // query! queryRunner.release is apparently for connection pool
+        // management only, not query cancellation.
+        // if (!isQueryComplete) {
+        //   queryRunner.release();
+        // }
+
+        // Note: the below code is not viable! It will destroy the ENTIRE
+        // database client apparatus, making all subsequent queries fail!
+        // if (!isQueryComplete) {
+        //   queryRunner.connection.destroy();
+        // }
       };
-      // Note: the below code does NOT appear to cancel the database query!
-      // if (!isQueryComplete) {
-      //   queryRunner.release();
-      // }
     });
   }
 
