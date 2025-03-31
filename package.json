@@ -5,9 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "start:backend": "cd backend && npm run start:dev",
+    "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start",
-    "start": "concurrently -k -n \"BACKEND,FRONTEND\" -c \"green,blue\" --handle-input \"npm run start:backend\" \"npm run start:frontend\""
+    "start": "concurrently --kill-others --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"npm run start:frontend\" \"npm run start:backend\" --handle-input"
   },
   "author": "d5732@github.com",
   "devDependencies": {
