@@ -44,7 +44,8 @@ export class AppService {
       queryRunner
         .connect()
         .then((dbClient: PgClient) => {
-          console.log({ dbClient });
+          // console.log({ dbClient });
+
           processId = dbClient.processID;
           this.logger.log('Connected to database. PID:', processId);
 
@@ -90,7 +91,10 @@ export class AppService {
       // Cleanup effect
       return () => {
         if (!isQueryComplete && processId) {
-          this.logger.log('Cleanup: cancelling query for PID:', processId);
+          this.logger.log(
+            'Cleanup effect: cancelling query for PID:',
+            processId,
+          );
           // We must cancel the query using a new query runner :(
           const cancelRunner = this.dataSource.createQueryRunner();
           cancelRunner
@@ -101,26 +105,38 @@ export class AppService {
               // reach this point, a new process with the same PID may have
               // already started. In that edge case, the WRONG process will be
               // terminated.
-              return cancelRunner
+              cancelRunner
                 .query('SELECT pg_cancel_backend($1)', [processId])
                 .then(() =>
                   this.logger.log(
-                    'Successfully cancelled query for PID:',
+                    'Cleanup effect: Successfully cancelled query for PID:',
                     processId,
                   ),
-                );
+                )
+                .catch((err) => {
+                  this.logger.error(
+                    'Cleanup effect: Failed to cancel query:',
+                    err,
+                  );
+                  subscriber.error(err);
+                })
+                .finally(() => {
+                  void cancelRunner.release();
+                  this.logger.log(
+                    'Cleanup effect: Cancel query runner released',
+                  );
+                });
             })
             .catch((err) => {
-              this.logger.error('Failed to cancel query:', err);
+              this.logger.error(
+                'Cleanup effect: Failed to connect to cancel query runner:',
+                err,
+              );
               subscriber.error(err);
-            })
-            .finally(() => {
-              void cancelRunner.release();
-              this.logger.log('Cancel query runner released');
             });
         }
 
-        // For reference, here are some other approaches that won't work:
+        // For reference, here are some other approaches that will NOT work:
 
         // Note: the below code is not viable! It will NOT cancel the database
         // query! queryRunner.release is apparently for connection pool
