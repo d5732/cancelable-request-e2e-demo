@@ -277,7 +277,7 @@ function App() {
             <P sx={{ mb: 2 }}>
               On my machine, I was able to trigger ~400 HTTP requests in 10
               seconds by typing random characters. I saw the database{" "}
-              <code>CPU %</code> spike to about 1200% while typing.
+              <code>CPU %</code> spike to about 400% while typing.
             </P>
             <P sx={{ mb: 2 }}>
               After stopping typing, database <code>CPU %</code> returned to ~0%
@@ -300,10 +300,7 @@ function App() {
               <b>Connection Management:</b> The backend requires a separate
               database connection to execute the <code>pg_cancel_backend</code>{" "}
               command. If the connection pool is exhausted, the cancellation
-              request must wait for a connection to become available. To ensure
-              cancellation in a timely manner, we need either a very high
-              connection pool size or a connection pool that can be drained and
-              refilled quickly.
+              request must wait for a connection to become available.
             </Li>
             <Li>
               <b>Timing Issues:</b> Other backend operations may delay the
