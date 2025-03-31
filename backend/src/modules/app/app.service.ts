@@ -44,7 +44,7 @@ export class AppService {
       queryRunner
         .connect()
         .then((dbClient: PgClient) => {
-          // console.log({ dbClient });
+          console.log({ dbClient });
 
           processId = dbClient.processID;
           this.logger.log('Connected to database. PID:', processId);
@@ -160,6 +160,7 @@ export class AppService {
         where: {
           name: ILike(`%${name}%`),
         },
+        take: 500,
       });
     } catch (error) {
       this.logger.error('Failed to search dogs:', error);
