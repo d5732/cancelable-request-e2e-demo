@@ -1,6 +1,6 @@
 # Cancelable Request Flow
 
-This document describes the flow of a cancelable HTTP request in this application, from user input to database query cancellation.
+This demo shows a resource optimization approach where a canceled HTTP request triggers database query cancellation.
 
 ## Request Flow
 
@@ -51,3 +51,7 @@ npm run start;
 ```
 
 - Then, open your web browser and navigate to http://localhost:5173
+
+## References
+
+- Based on https://medium.com/marmicode/end-to-end-http-request-cancelation-with-rxjs-nestjs-909389c9d4bd
