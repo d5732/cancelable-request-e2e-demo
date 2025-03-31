@@ -1,13 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Client as _PgClient } from 'pg';
 import { Observable } from 'rxjs';
 import { DataSource, ILike, Repository } from 'typeorm';
 import { createLogger } from '../../utils';
 import { Dog } from './entities/dog.entity';
 
-interface PgBackendPid {
-  pid: number;
+interface PgClient extends _PgClient {
+  processID: number;
 }
 
 @Injectable()
@@ -37,49 +38,58 @@ export class AppService {
       let isQueryComplete = false;
 
       // Establish a new database connection
-      void queryRunner.connect().then(() => {
-        this.logger.log('Connected to database. Querying for PID...');
+      queryRunner
+        .connect()
+        .then((dbClient: PgClient) => {
+          console.log({ dbClient });
+          processId = dbClient.processID;
+          this.logger.log('Connected to database. PID:', processId);
 
-        // Get the process ID of the current connection
-        void queryRunner
-          .query('SELECT pg_backend_pid() as pid')
-          .then((rows: PgBackendPid[]) => {
-            // save the process id so we can cancel the query later
-            processId = rows[0].pid;
-            this.logger.log('Got PID:', processId);
+          // Query for dogs
+          queryRunner.manager
+            .find(Dog, {
+              where: {
+                name: ILike(`%${name}%`),
+              },
+              take: 500,
+            })
+            .then((rows: Dog[]) => {
+              isQueryComplete = true;
+              this.logger.log(`Next'ing ${rows.length} dogs`);
+              subscriber.next(rows);
+              subscriber.complete();
+              this.logger.log('Subscriber completed');
+            })
+            .catch((err) => {
+              isQueryComplete = true;
+              this.logger.error('Failed to query dogs:', err);
+              subscriber.error(err);
+            })
+            .finally(() => {
+              queryRunner
+                .release()
+                .then(() => {
+                  this.logger.log('Search dogs query runner released');
+                })
+                .catch((err) => {
+                  this.logger.error(
+                    'Failed to release search dogs query runner:',
+                    err,
+                  );
+                });
+            });
+        })
+        .catch((err) => {
+          this.logger.error('queryRunner.connect() error:', err);
+          subscriber.error(err);
+        });
 
-            // query for dogs
-            queryRunner.manager
-              .find(Dog, {
-                where: {
-                  name: ILike(`%${name}%`),
-                },
-                take: 500,
-              })
-              .then((rows: Dog[]) => {
-                isQueryComplete = true;
-                this.logger.log(`Next'ing ${rows?.length} dogs`);
-                subscriber.next(rows || []);
-                subscriber.complete();
-                this.logger.log('Subscriber completed');
-              })
-              .catch((err) => {
-                isQueryComplete = true;
-                this.logger.error('Failed to query dogs:', err);
-                subscriber.error(err);
-              })
-              .finally(() => {
-                void queryRunner.release();
-                this.logger.log('Search dogs query runner released');
-              });
-          });
-      });
-
-      // cleanup effect
+      // Cleanup effect
       return () => {
         if (!isQueryComplete && processId) {
+          // queryRunner.release(); maybe?
           this.logger.log('Cleanup: cancelling query for PID:', processId);
-          // we must cancel the query using a new query runner :(
+          // We must cancel the query using a new query runner :(
           const cancelRunner = this.dataSource.createQueryRunner();
           cancelRunner
             .connect()
@@ -103,6 +113,10 @@ export class AppService {
             });
         }
       };
+      // Note: the below code does NOT appear to cancel the database query!
+      // if (!isQueryComplete) {
+      //   queryRunner.release();
+      // }
     });
   }
 
