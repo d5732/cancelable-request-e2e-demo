@@ -166,14 +166,17 @@ function App() {
               The frontend will not abort the fetch if the user keeps typing.
             </P>
             <P sx={{ mb: 2 }}>
-              You will likely notice the native browser throttling mechanism is
-              effective, as the database <code>CPU %</code> should remain lower.
+              Because no requests are canceled, a queue of requests piles up on
+              the frontend, and this takes a long time to cycle through.
             </P>
             <P sx={{ mb: 2 }}>
-              Because no requests are canceled, pending requests pile up on the
-              frontend and take longer to cycle through. However, the backend
-              and database saturation should be smoother instead of spiking, as
-              we saw in the other examples.
+              On my machine, I was able to queue ~400 HTTP requests in 10
+              seconds by typing random characters. It took around ~1 minute to
+              cycle through the queue of requests on the frontend. This puts
+              consistent pressure on the database, and delays the return of the
+              only significant result (the last request). I saw the database{" "}
+              <code>CPU %</code> spike to about 1200% while the frontend cycled
+              through the queue of requests.
             </P>
           </Box>
         </div>
@@ -226,7 +229,7 @@ function App() {
             </P>
             <P sx={{ mb: 2 }}>
               After stopping typing, database <code>CPU %</code> returned to ~0%
-              in just a few seconds.
+              in ~1 minute.
             </P>
           </Box>
         </div>
@@ -281,7 +284,7 @@ function App() {
             </P>
             <P sx={{ mb: 2 }}>
               After stopping typing, database <code>CPU %</code> returned to ~0%
-              in just a few seconds.
+              in ~4 seconds.
             </P>
           </Box>
         </div>
