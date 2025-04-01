@@ -327,6 +327,9 @@ function App() {
             <Li>
               <b>Timing Issues:</b> Other backend operations may delay the
               execution of query cancellation logic, reducing its effectiveness.
+              Also, I suspect there are corner cases where, under extremely
+              degraded performance, the backend could cancel a recycled
+              processId which has already begun an entirely new query.
             </Li>
             <Li>
               <b>Technical Complexity:</b> The implementation requires
