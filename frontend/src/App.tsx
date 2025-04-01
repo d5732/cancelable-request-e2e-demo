@@ -328,8 +328,14 @@ function App() {
               <b>Timing Issues:</b> Other backend operations may delay the
               execution of query cancellation logic, reducing its effectiveness.
               Also, I suspect there are corner cases where, under extremely
-              degraded performance, the backend could cancel a recycled
-              processId which has already begun an entirely new query.
+              degraded performance, the backend could cancel a processId which
+              has already begun an entirely new query. For example, a plausible
+              series of events where this could occur: due to a transient
+              connection error, the database query (A) with processId e.g. 123
+              does not return a response to the backend. Then, a new query (B)
+              begins and reuses processId 123. Then, the cleanup effect for
+              query (A) could naively terminate processId 123 (query B, which is
+              the wrong query to cancel!).
             </Li>
             <Li>
               <b>Technical Complexity:</b> The implementation requires
