@@ -26,45 +26,58 @@ function App() {
           <H2>Why Would You Want to Cancel a Request?</H2>
 
           <P sx={{ mb: 2 }}>
-            HTTP/1.1 specifications (
+            Most modern browsers limit concurrent connections to{" "}
+            <b>6 per server</b>. This is in compliance with HTTP/1.1
+            specifications (
             <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4">
               RFC 7230
             </a>
-            ) define connection management principles that impact modern web
-            applications. The specification states that "A client ought to limit
-            the number of simultaneous open connections that it maintains to a
-            given server."
+            ) which state that "a client ought to limit the number of
+            simultaneous open connections that it maintains to a given server."
+          </P>
+          <P sx={{ mb: 2 }}>
+            This limitation presents challenges for dynamic UIs that require
+            frequent data updates. The browser's connection limit can cause
+            requests to pile up in a queue, and increase wait times.
+          </P>
+          <P sx={{ mb: 2 }}>
+            Even within the connection limit, multiple pending requests can lead
+            to race conditions, as there is no guarantee on the order of
+            responses. This may result in the UI displaying stale data that
+            doesn't reflect the latest frontend state.
+          </P>
+          <P sx={{ mb: 2 }}>
+            To avoid these issues, you could cancel requests which no longer
+            correspond to the current application state. The{" "}
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController">
+              AbortController API
+            </a>{" "}
+            offers a solution by enabling frontend applications to terminate
+            pending HTTP requests.
           </P>
 
-          <P sx={{ mb: 2 }}>
-            Modern browsers implement this recommendation by limiting concurrent
-            connections to <b>6 per server</b>. This built-in throttling
-            mechanism protects backend servers from excessive load, particularly
-            from UIs that generate rapid-fire requests.
-          </P>
+          <H2>So I Can Cancel a Request, What's the Problem?</H2>
 
           <P sx={{ mb: 2 }}>
-            However, this limitation presents challenges for dynamic UIs that
-            require frequent data updates. The browser's connection limit can
-            create request backlogs, reduce UI responsiveness, and lead to race
-            conditions when multiple requests are in flight.
-          </P>
-
-          <P sx={{ mb: 2 }}>
-            The AbortController API offers a solution by enabling frontend
-            applications to terminate ongoing HTTP requests. This capability
-            raises an important question:{" "}
+            This capability raises an important question:{" "}
             <b>
               How does bypassing the browser's connection limit affect the load
               on your backend?
             </b>
           </P>
-
           <P sx={{ mb: 2 }}>
-            While various strategies exist to improve backend request handling,
-            this demo explores implementations that gracefully terminate backend
-            operations when they're no longer needed by the frontend.
+            Cancelling requests effectively bypasses the browser's built-in
+            connection limit. Simply put, you'll see increased load on your
+            backend.
           </P>
+          <P sx={{ mb: 2 }}>
+            One logical conclusion is that we should be cancelling requests from
+            end to end. This demo explores implementations that gracefully
+            terminate backend operations when they're no longer needed by the
+            frontend.
+          </P>
+
+          <P sx={{ mb: 2 }}></P>
 
           <H2>What Is This Demo App?</H2>
 
