@@ -4,7 +4,7 @@ This demo shows a resource optimization approach where unnecessary work is grace
 
 ## Request Flow
 
-![Request Flow](https://github.com/user-attachments/assets/0afd7d70-d9c9-4db8-831b-9664e31c8eae)
+![Request Flow](https://i.ibb.co/mrkR30RM/excalidraw-claymate.gif)
 
 1. **User Input**
 
