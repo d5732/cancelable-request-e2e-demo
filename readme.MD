@@ -1,6 +1,6 @@
 # Cancelable Request Flow
 
-This demo shows a resource optimization approach where a canceled HTTP request triggers database query cancellation.
+This demo shows a resource optimization approach where unnecessary work is gracefully canceled when HTTP request are canceled by the frontend client.
 
 ## Request Flow
 
