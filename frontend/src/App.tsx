@@ -320,7 +320,9 @@ function App() {
               <b>Connection Management:</b> The backend requires a separate
               database connection to execute the <code>pg_cancel_backend</code>{" "}
               command. If the connection pool is exhausted, the cancellation
-              request must wait for a connection to become available.
+              request must wait for a connection to become available. You may
+              want to allocate a separate, bespoke connection pool strictly
+              responsible for cancelling queries.
             </Li>
             <Li>
               <b>Timing Issues:</b> Other backend operations may delay the
