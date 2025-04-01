@@ -24,7 +24,6 @@ function App() {
 
         <div className="card">
           <H2>Why Would You Want to Cancel a Request?</H2>
-
           <P sx={{ mb: 2 }}>
             Most modern browsers limit concurrent connections to{" "}
             <b>6 per server</b>. This is in compliance with HTTP/1.1
@@ -38,65 +37,62 @@ function App() {
           <P sx={{ mb: 2 }}>
             This limitation presents challenges for dynamic UIs that require
             frequent data updates. The browser's connection limit can cause
-            requests to pile up in a queue, and increase wait times.
+            requests to pile up in a queue, increasing wait times.
           </P>
           <P sx={{ mb: 2 }}>
-            Even within the connection limit, multiple pending requests can lead
-            to race conditions, as there is no guarantee on the order of
-            responses. This may result in the UI displaying stale data that
-            doesn't reflect the latest frontend state.
+            Even within the connection limit, multiple requests can produce race
+            conditions, because response ordering is not guaranteed.
           </P>
           <P sx={{ mb: 2 }}>
-            To avoid these issues, you could cancel requests which no longer
-            correspond to the current application state. The{" "}
+            To avoid these issues, dynamic UIs may want to cancel requests which
+            no longer correspond to the current application state. The{" "}
             <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController">
               AbortController API
             </a>{" "}
             offers a solution by enabling frontend applications to terminate
             pending HTTP requests.
           </P>
-
           <H2>So I Can Cancel a Request, What's the Problem?</H2>
-
           <P sx={{ mb: 2 }}>
-            This capability raises an important question:{" "}
-            <b>
-              How does bypassing the browser's connection limit affect the load
-              on your backend?
-            </b>
+            Aborting requests effectively bypasses concurrent connection limits
+            set natively by the browser. So, this raises an important question:{" "}
+            <b>is your backend ready for this?</b>
           </P>
           <P sx={{ mb: 2 }}>
-            Cancelling requests effectively bypasses the browser's built-in
-            connection limit. Simply put, you'll see increased load on your
-            backend.
+            There are a few different philosophies to approach this problem
+            with. One is the make operations efficient, such that the extra work
+            the backend must perform does not degrade overall performance
+            noticeably. This is a conventional, and effective approach.
           </P>
           <P sx={{ mb: 2 }}>
-            One logical conclusion is that we should be cancelling requests from
-            end to end. This demo explores implementations that gracefully
-            terminate backend operations when they're no longer needed by the
-            frontend.
+            However, sometimes the extra work is simply too costly, and we must
+            consider the other alternative:{" "}
+            <b>make operations cancelable end-to-end.</b>
           </P>
-
           <P sx={{ mb: 2 }}></P>
-
           <H2>What Is This Demo App?</H2>
-
           <P sx={{ mb: 2 }}>
-            To demonstrate different tradeoffs, this demo app shows 3 different
-            approaches for an autocomplete typeahead that fetches data from a
-            backend API about dogs. 🐕
+            This demo explores graceful end-to-end termination of backend
+            operations when they're no longer needed by the frontend.
+          </P>
+          <P sx={{ mb: 2 }}>
+            To demonstrate the performance benefit, we will explore 3 different
+            autocomplete typeaheads that fetch a list of dogs from a backend
+            API. 🐕
           </P>
           <P sx={{ mb: 2 }}>
             The backend is a Node.js API with a PostgreSQL database.
           </P>
           <P sx={{ mb: 2 }}>
-            The database's dog table's{" "}
+            The database's{" "}
             <b>
-              <code>name</code>
+              <code>dog.name</code>
             </b>{" "}
-            column is deliberately <b>not indexed</b>, forcing a full table
-            scan. This is to ensure the query is slow enough to observe the
-            impact of cancelable requests.
+            column is deliberately <b>not indexed</b>. The query is{" "}
+            <code>SELECT * FROM dogs WHERE name ILIKE '%$1%' LIMIT 500;</code>.
+            Each database query will perform a full table scan. These
+            constraints make the query slow enough to observe the impact of
+            cancelable requests.
           </P>
         </div>
 
@@ -306,8 +302,16 @@ function App() {
 
         <div className="card">
           <P sx={{ mb: 2 }}>
-            While implementing backend query cancellation can optimize resource
-            usage, this approach has some shortcomings and pitfalls.
+            It's always a good idea to pursue database optimization before
+            resorting to more complex logic in your backend webserver. However,
+            if you, your team, and ChatGPT simply cannot optimize a query, this
+            approach may offer some improvement in resource efficiency. For any
+            given SELECT query, the more costly it is to execute, the more
+            beneficial it will be to cancel it.
+          </P>
+          <P sx={{ mb: 2 }}>
+            This approach has some shortcomings and pitfalls to be aware of as
+            well.
           </P>
 
           <H2>Implementation Challenges</H2>
@@ -325,6 +329,8 @@ function App() {
             <Li>
               <b>Technical Complexity:</b> The implementation requires
               familiarity with RxJS and increases overall code complexity.
+              Unless your team is already using RxJS heavily, this may a
+              significant barrier to entry.
             </Li>
           </Ul>
 
