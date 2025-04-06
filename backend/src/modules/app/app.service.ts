@@ -27,13 +27,13 @@ export class AppService {
     return new Observable<Dog[]>((subscriber) => {
       const queryRunner = this.dataSource.createQueryRunner();
       let processId: number | null = null;
-      let isQueryComplete = false;
+      let isComplete = false;
 
       // Establish a new database connection
       queryRunner
         .connect()
         .then((dbClient: PgClient) => {
-          console.log({ dbClient });
+          // console.log({ dbClient });
 
           processId = dbClient.processID;
           this.logger.log('Connected to database. PID:', processId);
@@ -47,29 +47,16 @@ export class AppService {
               take: 500,
             })
             .then((rows: Dog[]) => {
-              isQueryComplete = true;
+              isComplete = true;
               this.logger.log(`Next'ing ${rows.length} dogs`);
               subscriber.next(rows);
               subscriber.complete();
               this.logger.log('Subscriber completed');
             })
             .catch((err) => {
-              isQueryComplete = true;
+              isComplete = true;
               this.logger.error('Failed to query dogs:', err);
               subscriber.error(err);
-            })
-            .finally(() => {
-              queryRunner
-                .release()
-                .then(() => {
-                  this.logger.log('Search dogs query runner released');
-                })
-                .catch((err) => {
-                  this.logger.error(
-                    'Failed to release search dogs query runner:',
-                    err,
-                  );
-                });
             });
         })
         .catch((err) => {
@@ -79,42 +66,39 @@ export class AppService {
 
       // Cleanup effect
       return () => {
-        if (!isQueryComplete && processId) {
+        if (!isComplete && processId) {
           this.logger.log(
             'Cleanup effect: cancelling query for PID:',
             processId,
           );
-          // TODO: I can't find an easy way in typeorm to close the existing
-          // connection from above without terminating the entire connection pool.
-          // For reference, here are some other approaches that will NOT work:
-          //
-          // Not viable! It will NOT cancel the database query!
-          // queryRunner.release is apparently for connection pool
-          // management only, not query cancellation.
-          // if (!isQueryComplete) {
-          //   queryRunner.release();
-          // }
-          //
-          // Not viable! It will destroy the ENTIRE database client apparatus,
-          // causing all subsequent queries to fail!
-          // if (!isQueryComplete) {
-          //   queryRunner.connection.destroy();
-          // }
-          //
-          // Instead we can cancel the query using a new connection and query to
-          // tell the database to cancel the PID in postgres.
           this.dataSource
             .query('SELECT pg_cancel_backend($1)', [processId])
             .then(() => {
               this.logger.log(
-                'Cleanup effect:  Successfully cancelled query for PID:',
+                'Cleanup effect: successfully cancelled query for PID:',
                 processId,
               );
             })
             .catch((err) => {
-              this.logger.error('Cleanup effect: Failed to cancel query:', err);
+              this.logger.error('Cleanup effect: failed to cancel query:', err);
             });
         }
+        // Release the query runner now. Waiting until the end to release the
+        // query runner should prevent the edge case where the PID was quickly
+        // recycled to start handling a new, different query. We do not want to
+        // errantly cancel a new query using the same PID (i.e. cancel the wrong
+        // query).
+        queryRunner
+          .release()
+          .then(() => {
+            this.logger.log('Cleanup effect: released query runner');
+          })
+          .catch((err) => {
+            this.logger.error(
+              'Cleanup effect: failed to release query runner:',
+              err,
+            );
+          });
       };
     });
   }
