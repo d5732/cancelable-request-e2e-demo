@@ -33,7 +33,7 @@ export class AppService {
       queryRunner
         .connect()
         .then((dbClient: PgClient) => {
-          console.log({ dbClient });
+          // this.logger.log({ dbClient });
 
           processId = dbClient.processID;
           this.logger.log('Connected query runner. PID:', processId);
