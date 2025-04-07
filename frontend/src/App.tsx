@@ -12,6 +12,11 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import "./App.css";
+import {
+  CpuConsumptionChart,
+  SpikeDurationChart,
+  WaitTimeChart,
+} from "./PerformanceComparisonChart";
 
 const BACKEND_URL = "http://localhost:3000";
 
@@ -20,7 +25,7 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <div className="container">
-        <H1>Cancelable Requests E2E</H1>
+        <H1>E2E Cancelable Requests</H1>
 
         <div className="card">
           <H2>Why Would You Want to Cancel a Request?</H2>
@@ -153,7 +158,7 @@ function App() {
         <H1>Implementation Examples</H1>
 
         <div className="card">
-          <H2>1. Without Abort 😅</H2>
+          <H2>1. No Abort 😅</H2>
 
           <AutocompleteWrapper
             useAbortController={false}
@@ -168,12 +173,7 @@ function App() {
             <P sx={{ mb: 2 }}>
               In this example, the frontend foregoes request termination
               entirely, allowing concurrent requests to complete regardless of
-              input state changes.
-            </P>
-            <P sx={{ mb: 2 }}>
-              Browser-level request throttling mechanisms provide inherent rate
-              limiting for same-origin requests, mitigating potential system
-              overload.
+              UI state changes.
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
@@ -187,23 +187,29 @@ function App() {
               The frontend will not abort the fetch if the user keeps typing.
             </P>
             <P sx={{ mb: 2 }}>
-              Because no requests are canceled, a queue of requests piles up on
-              the frontend, and this takes a long time to cycle through.
+              Because no requests are canceled, a queue of requests may pile up
+              on the frontend, taking a long time to cycle through. This puts
+              consistent pressure on the database, and delays the return of the
+              only significant result (the last request), resulting in a poor
+              user experience.
             </P>
             <P sx={{ mb: 2 }}>
               On my machine, I was able to queue ~400 HTTP requests in 10
-              seconds by typing random characters. It took around ~1 minute to
-              cycle through the queue of requests on the frontend. This puts
-              consistent pressure on the database, and delays the return of the
-              only significant result (the last request). I saw the database{" "}
-              <code>CPU %</code> spike to about 1200% while the frontend cycled
-              through the queue of requests.
+              seconds by typing random characters.
+            </P>
+            <P sx={{ mb: 2 }}>
+              It took <b>~1 minute</b> to cycle through the queue of requests on
+              the frontend.
+            </P>
+            <P sx={{ mb: 2 }}>
+              I saw the database <code>CPU %</code> spike to <b>~1200%</b> while
+              the frontend cycled through the queue of requests.
             </P>
           </Box>
         </div>
 
         <div className="card">
-          <H2>2. With Abort 🤔</H2>
+          <H2>2. Simple Abort 🤔</H2>
 
           <AutocompleteWrapper
             label="Search dogs by name"
@@ -231,7 +237,7 @@ function App() {
             </P>
             <H2>Tradeoffs</H2>
             <Ul>
-              <Li color="success">Prevents request race conditions</Li>
+              <Li color="success">Prevents race conditions</Li>
               <Li color="error" isLast>
                 Increases concurrent load on backend resources
               </Li>
@@ -245,21 +251,24 @@ function App() {
             </P>
             <P sx={{ mb: 2 }}>
               On my machine, I was able to trigger ~400 HTTP requests in 10
-              seconds by typing random characters. I saw the database{" "}
-              <code>CPU %</code> spike to about 1200% while typing.
+              seconds by typing random characters.
+            </P>
+            <P sx={{ mb: 2 }}>
+              I saw database <code>CPU %</code> consumption spike to{" "}
+              <b>~1200%</b> while typing.
             </P>
             <P sx={{ mb: 2 }}>
               After stopping typing, database <code>CPU %</code> returned to ~0%
-              in ~1 minute.
+              in <b>~1 minute</b>.
             </P>
           </Box>
         </div>
 
         <div className="card">
-          <H2>3. With Abort and Cancelable Query 🤓</H2>
+          <H2>3. E2E Abort 🤓</H2>
 
           <AutocompleteWrapper
-            label="Search dogs by name (cancelable database query)"
+            label="Search dogs by name"
             getUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
                 inputValue
@@ -282,9 +291,7 @@ function App() {
             <H2>Tradeoffs</H2>
 
             <Ul>
-              <Li color="success">
-                Optimizes resource utilization through immediate deallocation
-              </Li>
+              <Li color="success">Optimizes resource utilization</Li>
               <Li color="error" isLast>
                 Requires complex implementation across multiple system layers
               </Li>
@@ -301,11 +308,11 @@ function App() {
             <P sx={{ mb: 2 }}>
               On my machine, I was able to trigger ~400 HTTP requests in 10
               seconds by typing random characters. I saw the database{" "}
-              <code>CPU %</code> spike to about 400% while typing.
+              <code>CPU %</code> spike to <b>~400%</b> while typing.
             </P>
             <P sx={{ mb: 2 }}>
               After stopping typing, database <code>CPU %</code> returned to ~0%
-              in ~4 seconds.
+              in <b>~4 seconds</b>.
             </P>
             <P sx={{ mb: 2 }}>
               Compared to the previous example, this is a{" "}
@@ -315,6 +322,36 @@ function App() {
               the duration of CPU utilization spike by <b>~15x</b>.
             </P>
           </Box>
+        </div>
+
+        <H1>Metrics</H1>
+
+        <div className="card">
+          <P sx={{ mb: 2 }}>
+            The following charts compare the performance of each approach.
+          </P>
+
+          <H2>Wait Time</H2>
+          <P sx={{ mb: 2 }}>
+            This chart shows <b>how long</b> the UI was waiting for results for
+            the latest search term.
+          </P>
+          <WaitTimeChart />
+
+          <H2>Database CPU Saturation Duration</H2>
+          <P sx={{ mb: 2 }}>
+            This chart shows <b>how long</b> the database was under heavy load
+            during the spike in requests initiated by the UI.
+          </P>
+          <SpikeDurationChart />
+
+          <H2>Database CPU Consumption While Under Duress</H2>
+          <P sx={{ mb: 2 }}>
+            This chart shows <b>how much</b> CPU was consumed by the database
+            while under heavy load during the spike in requests initiated by the
+            UI.
+          </P>
+          <CpuConsumptionChart />
         </div>
 
         <H1>Conclusion</H1>
@@ -454,7 +491,7 @@ const H1 = ({ children, ...props }: TypographyProps) => (
   </Typography>
 );
 
-const H2 = ({ children, ...props }: TypographyProps) => (
+export const H2 = ({ children, ...props }: TypographyProps) => (
   <Typography
     variant="h6"
     component="h2"
