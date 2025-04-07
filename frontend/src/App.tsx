@@ -28,7 +28,11 @@ function App() {
             Most modern browsers limit concurrent connections to{" "}
             <b>6 per server</b>. This is in compliance with HTTP/1.1
             specifications (
-            <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://datatracker.ietf.org/doc/html/rfc7230#section-6.4"
+            >
               RFC 7230
             </a>
             ) which state that "a client ought to limit the number of
@@ -46,7 +50,11 @@ function App() {
           <P sx={{ mb: 2 }}>
             To avoid these issues, dynamic UIs may want to cancel requests which
             no longer correspond to the current application state. The{" "}
-            <a href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
+            >
               AbortController API
             </a>{" "}
             offers a solution by enabling frontend applications to terminate
@@ -107,7 +115,11 @@ function App() {
           </P>
           <P sx={{ mb: 2 }}>
             Navigate to{" "}
-            <a href="http://localhost:3000/swagger#/dogs/AppController_seedDogs">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="http://localhost:3000/swagger#/dogs/AppController_seedDogs"
+            >
               Swagger UI
             </a>{" "}
             to seed the database with dog records. On my machine, I had to seed
@@ -317,7 +329,11 @@ function App() {
             <Li>
               <b>Learning Curve:</b> The implementation requires familiarity
               with{" "}
-              <a href="https://en.wikipedia.org/wiki/Reactive_programming">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://en.wikipedia.org/wiki/Reactive_programming"
+              >
                 reactive programming
               </a>{" "}
               and RxJS. This could raise your project's barrier to entry, and
