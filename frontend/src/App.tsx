@@ -149,7 +149,7 @@ function App() {
             $ docker stats
           </Typography>
           <P sx={{ mb: 2 }}>
-            This will display CPU consumption, etc., of the database container,
+            This will display CPU usage, etc., of the database container,
             allowing you to observe the resource impact of each different
             approach.
           </P>
@@ -291,7 +291,7 @@ function App() {
             <H2>Tradeoffs</H2>
 
             <Ul>
-              <Li color="success">Optimizes resource utilization</Li>
+              <Li color="success">Optimizes resource usage</Li>
               <Li color="error" isLast>
                 Requires complex implementation across multiple system layers
               </Li>
@@ -316,10 +316,10 @@ function App() {
             </P>
             <P sx={{ mb: 2 }}>
               Compared to the previous example, this is a{" "}
-              <b>significant improvement in database resource utilization</b>.
-              Based on the figures I observed, this approach reduces CPU
-              utilization during the traffic spike by <b>~3x</b>, and reduces
-              the duration of CPU utilization spike by <b>~15x</b>.
+              <b>significant improvement in database resource usage</b>. Based
+              on the figures I observed, this approach reduces CPU usage during
+              the traffic spike by <b>~3x</b>, and reduces the duration of CPU
+              usage spike by <b>~15x</b>.
             </P>
           </Box>
         </div>
@@ -328,7 +328,8 @@ function App() {
 
         <div className="card">
           <P sx={{ mb: 2 }}>
-            The following charts compare the performance of each approach.
+            The following charts compare the performance of each approach during
+            my tests.
           </P>
 
           <H2>Wait Time</H2>
@@ -345,7 +346,7 @@ function App() {
           </P>
           <SpikeDurationChart />
 
-          <H2>Database CPU Consumption While Under Duress</H2>
+          <H2>Database CPU Usage</H2>
           <P sx={{ mb: 2 }}>
             This chart shows <b>how much</b> CPU was consumed by the database
             while under heavy load during the spike in requests initiated by the
@@ -358,10 +359,10 @@ function App() {
 
         <div className="card">
           <P sx={{ mb: 2 }}>
-            Canceling database queries can help optimize resource utilization,
-            notably when database optimization is infeasible. For any given
-            query, the more costly it is to execute, the more beneficial it will
-            be to cancel it when the initiator no longer needs the result.
+            Canceling database queries can help optimize resource usage, notably
+            when database optimization is infeasible. For any given query, the
+            more costly it is to execute, the more beneficial it will be to
+            cancel it when the initiator no longer needs the result.
           </P>
           <P sx={{ mb: 2 }}>
             Before using this approach, be aware of the challenges that come
