@@ -29,14 +29,14 @@ export class AppService {
       let processId: number | null = null;
       let isQueryComplete = false;
 
-      // Establish a new database connection
+      // Connect
       queryRunner
         .connect()
         .then((dbClient: PgClient) => {
           console.log({ dbClient });
 
           processId = dbClient.processID;
-          this.logger.log('Connected to database. PID:', processId);
+          this.logger.log('Connected query runner. PID:', processId);
 
           // Query for dogs
           queryRunner.manager
@@ -51,7 +51,7 @@ export class AppService {
               this.logger.log(`Next'ing ${rows.length} dogs`);
               subscriber.next(rows);
               subscriber.complete();
-              this.logger.log('Subscriber completed');
+              this.logger.log('Completed subscriber');
             })
             .catch((err) => {
               isQueryComplete = true;
@@ -59,10 +59,11 @@ export class AppService {
               subscriber.error(err);
             })
             .finally(() => {
+              this.logger.log('Releasing search dogs query runner');
               queryRunner
                 .release()
                 .then(() => {
-                  this.logger.log('Search dogs query runner released');
+                  this.logger.log('Released search dogs query runner');
                 })
                 .catch((err) => {
                   this.logger.error(
@@ -73,7 +74,7 @@ export class AppService {
             });
         })
         .catch((err) => {
-          this.logger.error('queryRunner.connect() error:', err);
+          this.logger.error('Failed to connect query runner:', err);
           subscriber.error(err);
         });
 
@@ -84,35 +85,17 @@ export class AppService {
             'Cleanup effect: cancelling query for PID:',
             processId,
           );
-          // TODO: I can't find an easy way in typeorm to close the existing
-          // connection from above without terminating the entire connection pool.
-          // For reference, here are some other approaches that will NOT work:
-          //
-          // Not viable! It will NOT cancel the database query!
-          // queryRunner.release is apparently for connection pool
-          // management only, not query cancellation.
-          // if (!isQueryComplete) {
-          //   queryRunner.release();
-          // }
-          //
-          // Not viable! It will destroy the ENTIRE database client apparatus,
-          // causing all subsequent queries to fail!
-          // if (!isQueryComplete) {
-          //   queryRunner.connection.destroy();
-          // }
-          //
-          // Instead we can cancel the query using a new connection and query to
-          // tell the database to cancel the PID in postgres.
+          // Cancel the search dogs query
           this.dataSource
             .query('SELECT pg_cancel_backend($1)', [processId])
             .then(() => {
               this.logger.log(
-                'Cleanup effect:  Successfully cancelled query for PID:',
+                'Cleanup effect: Cancelled query successfully for PID:',
                 processId,
               );
             })
             .catch((err) => {
-              this.logger.error('Cleanup effect: Failed to cancel query:', err);
+              this.logger.error('Cleanup effect: failed to cancel query:', err);
             });
         }
       };
