@@ -330,32 +330,28 @@ function App() {
             Before using this approach, be aware of the challenges that come
             with it.
           </P>
-
           <H2>Challenges</H2>
-          <Ul>
-            <Li>
-              <b>Learning Curve:</b> The implementation requires familiarity
-              with{" "}
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://en.wikipedia.org/wiki/Reactive_programming"
-              >
-                reactive programming
-              </a>{" "}
-              and RxJS. This could raise your project's barrier to entry, and
-              slow down onboarding of new team members.
-            </Li>
-            <Li>
-              <b>Connection Pool Management:</b> Cancelling a query with{" "}
-              <code>pg_cancel_backend</code> requires its own database
-              connection. These cancellations must be executed swiftly to
-              fulfill their intended purpose of freeing database resources as
-              soon as possible. So, you will need to ensure that your connection
-              pool has enough capacity to handle the cancellation requests.
-              Consider using a dedicated connection pool just for cancellations.
-            </Li>
-          </Ul>
+          <P sx={{ mb: 2 }}>
+            <b>Learning Curve:</b> The implementation requires familiarity with{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://en.wikipedia.org/wiki/Reactive_programming"
+            >
+              reactive programming
+            </a>{" "}
+            and RxJS. This could raise your project's barrier to entry, and slow
+            down onboarding of new team members.
+          </P>
+          <P sx={{ mb: 2 }}>
+            <b>Connection Pool Management:</b> The{" "}
+            <code>pg_cancel_backend</code> query requires its own database
+            connection. These cancellations must be executed swiftly to fulfill
+            their intended purpose of freeing database resources as soon as
+            possible. So, you will need to ensure that your connection pool has
+            enough capacity to handle the cancellation requests. Consider using
+            a dedicated connection pool just for cancellations.
+          </P>
         </div>
       </div>
     </ThemeProvider>
