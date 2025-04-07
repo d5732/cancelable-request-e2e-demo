@@ -302,63 +302,35 @@ function App() {
 
         <div className="card">
           <P sx={{ mb: 2 }}>
-            It's always a good idea to pursue database optimization before
-            resorting to more complex logic in your backend webserver. However,
-            if you, your team, and ChatGPT simply cannot optimize a query, this
-            approach may offer some improvement in resource efficiency. For any
-            given SELECT query, the more costly it is to execute, the more
-            beneficial it will be to cancel it.
+            Canceling database queries can help optimize resource utilization,
+            notably when database optimization is infeasible. For any given
+            query, the more costly it is to execute, the more beneficial it will
+            be to cancel it when the initiator no longer needs the result.
           </P>
           <P sx={{ mb: 2 }}>
-            This approach has some shortcomings and pitfalls to be aware of as
-            well.
+            Before using this approach, be aware of the challenges that come
+            with it.
           </P>
 
-          <H2>Implementation Challenges</H2>
+          <H2>Challenges</H2>
           <Ul>
             <Li>
-              <b>Connection Management:</b> The backend requires a separate
-              database connection to execute the <code>pg_cancel_backend</code>{" "}
-              command. If the connection pool is exhausted, the cancellation
-              request must wait for a connection to become available. You may
-              want to allocate a separate, bespoke connection pool strictly
-              responsible for cancelling queries.
+              <b>Learning Curve:</b> The implementation requires familiarity
+              with{" "}
+              <a href="https://en.wikipedia.org/wiki/Reactive_programming">
+                reactive programming
+              </a>{" "}
+              and RxJS. This could raise your project's barrier to entry, and
+              slow down onboarding of new team members.
             </Li>
             <Li>
-              <b>Timing Issues:</b> Other backend operations may delay the
-              execution of query cancellation logic, reducing its effectiveness.
-              Also, I suspect there are corner cases where, under extremely
-              degraded performance, the backend could cancel a processId which
-              has already begun an entirely new query. For example, a plausible
-              series of events where this could occur: due to a transient
-              connection error, the database query (A) with processId e.g. 123
-              does not return a response to the backend. Then, a new query (B)
-              begins and reuses processId 123. Then, the cleanup effect for
-              query (A) could naively terminate processId 123 (query B, which is
-              the wrong query to cancel!).
-            </Li>
-            <Li>
-              <b>Technical Complexity:</b> The implementation requires
-              familiarity with RxJS and increases overall code complexity.
-              Unless your team is already using RxJS heavily, this may a
-              significant barrier to entry.
-            </Li>
-          </Ul>
-
-          <P sx={{ mb: 2 }}>
-            Before implementing this pattern, consider more conventional
-            approaches to improve backend performance and reliability:
-          </P>
-          <Ul>
-            <Li>
-              <b>Database Optimization:</b> If you can improve query performance
-              easily, it may matter far less that queries are not canceled when
-              the frontend aborts a request.
-            </Li>
-            <Li>
-              <b>Request Throttling:</b> Reducing request frequency through
-              throttling or debouncing can also be a good approach, if it
-              doesn't significantly hinder UX.
+              <b>Connection Pool Management:</b> Cancelling a query with{" "}
+              <code>pg_cancel_backend</code> requires its own database
+              connection. These cancellations must be executed swiftly to
+              fulfill their intended purpose of freeing database resources as
+              soon as possible. So, you will need to ensure that your connection
+              pool has enough capacity to handle the cancellation requests.
+              Consider using a dedicated connection pool just for cancellations.
             </Li>
           </Ul>
         </div>
