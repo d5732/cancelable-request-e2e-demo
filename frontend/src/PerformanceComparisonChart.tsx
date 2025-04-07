@@ -41,8 +41,13 @@ function MetricChart({ title, dataKey, color }: MetricChartProps) {
     <ResponsiveContainer width="100%" height={200}>
       <BarChart layout="vertical" data={approachData}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" />
-        <YAxis dataKey="name" type="category" width={100} />
+        <XAxis type="number" tick={{ fill: "#b0b0b0" }} />
+        <YAxis
+          dataKey="name"
+          type="category"
+          width={100}
+          tick={{ fill: "#b0b0b0" }}
+        />
         <Tooltip
           contentStyle={{
             backgroundColor: "#333",
