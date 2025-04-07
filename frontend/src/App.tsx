@@ -307,6 +307,13 @@ function App() {
               After stopping typing, database <code>CPU %</code> returned to ~0%
               in ~4 seconds.
             </P>
+            <P sx={{ mb: 2 }}>
+              Compared to the previous example, this is a{" "}
+              <b>significant improvement in database resource utilization</b>.
+              Based on the figures I observed, this approach reduces CPU
+              utilization during the traffic spike by <b>~3x</b>, and reduces
+              the duration of CPU utilization spike by <b>~15x</b>.
+            </P>
           </Box>
         </div>
 
