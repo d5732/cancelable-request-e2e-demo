@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { AxisDomain } from "recharts/types/util/types";
 
 const approachData = [
   {
@@ -34,14 +35,15 @@ type MetricChartProps = {
   title: string;
   dataKey: string;
   color: string;
+  xAxisDomain?: AxisDomain;
 };
 
-function MetricChart({ title, dataKey, color }: MetricChartProps) {
+function MetricChart({ title, dataKey, color, xAxisDomain }: MetricChartProps) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart layout="vertical" data={approachData}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" tick={{ fill: "#b0b0b0" }} />
+        <XAxis type="number" tick={{ fill: "#b0b0b0" }} domain={xAxisDomain} />
         <YAxis
           dataKey="name"
           type="category"
@@ -69,6 +71,7 @@ export function WaitTimeChart() {
       title="Wait Time (seconds)"
       dataKey="waitTime"
       color="#8884d8"
+      xAxisDomain={[0, 80]}
     />
   );
 }
@@ -79,6 +82,7 @@ export function SpikeDurationChart() {
       title="Database CPU Saturation Duration (seconds)"
       dataKey="saturationDuration"
       color="#ffc658"
+      xAxisDomain={[0, 80]}
     />
   );
 }
