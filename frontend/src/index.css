@@ -69,6 +69,5 @@ button:focus-visible {
 
 .card label {
   display: block;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
-

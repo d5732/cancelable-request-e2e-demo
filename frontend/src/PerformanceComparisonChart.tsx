@@ -52,11 +52,11 @@ function MetricChart({ title, dataKey, color }: MetricChartProps) {
           contentStyle={{
             backgroundColor: "#333",
             border: "none",
-            color: "#fff",
+            color: "#b0b0b0",
           }}
-          itemStyle={{ color: "#ddd" }}
+          itemStyle={{ color: "#b0b0b0" }}
         />
-        <Legend wrapperStyle={{ color: "#ccc" }} />
+        <Legend />
         <Bar dataKey={dataKey} fill={color} name={title} />
       </BarChart>
     </ResponsiveContainer>
