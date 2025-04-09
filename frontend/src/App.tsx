@@ -27,9 +27,9 @@ function App() {
       <CssBaseline />
       <div className="container">
         <div className="card">
-          <H1>End-to-end Request Cancellation</H1>
+          <H1>End-To-End Request Cancellation</H1>
 
-          <H2>Why Would You Want to Cancel a Request?</H2>
+          <H2>Why Cancel a Request?</H2>
           <P sx={{ mb: 2 }}>
             Imagine an e-commerce website like Amazon with a dynamic product
             search bar. When a customer begins typing into the search bar, the
@@ -59,29 +59,29 @@ function App() {
           <P sx={{ mb: 2 }}>
             Even within the connection limit, multiple requests can produce race
             conditions on the frontend, because responses may be returned out of
-            order. This can lead to unexpected behavior.
+            order. This can lead to unexpected behavior.{" "}
           </P>
           <P sx={{ mb: 2 }}>
-            To avoid these issues, we can cancel requests which are no longer
-            relevant. The{" "}
+            So, we often want to cancel requests which are no longer relevant to
+            the frontend's current state, using{" "}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="https://developer.mozilla.org/en-US/docs/Web/API/AbortController"
             >
-              AbortController API
-            </a>{" "}
-            offers a solution, by enabling frontend applications to terminate
-            pending HTTP requests.
+              AbortController
+            </a>
+            .
           </P>
+          <P>However, AbortController is a double-edged sword.</P>
 
-          <H2>The AbortController Problem</H2>
+          <H2>Your Backend Hates AbortController</H2>
 
           <P sx={{ mb: 2 }}>
-            AbortController is a double-edged sword. While it allows the
-            frontend to cancel requests, it doesn't automatically cancel the
-            corresponding backend operations. This can create dramatic spikes in
-            the number of concurrent requests your backend is handling, because{" "}
+            While AbortController helps the frontend cancel requests, it{" "}
+            <b>does nothing to cancel the corresponding backend operations.</b>{" "}
+            Usage of the AbortController can create much more dramatic spikes in
+            requests, because{" "}
             <b>
               canceling requests effectively bypasses the browser's native
               throttling of concurrent same-origin connections.
@@ -148,7 +148,7 @@ function App() {
             column is deliberately <b>not indexed</b>. Thus, each database query
             will perform a full table scan.
           </P>
-          <P sx={{ mb: 2 }}>
+          <P>
             These constraints are contrived to make the database query slow.
             This will help us observe the impact of end-to-end request
             cancellation.
@@ -203,7 +203,7 @@ function App() {
         </div>
 
         <div className="card">
-          <H1>Implementation Examples</H1>
+          <H1>Demonstrating the Problem</H1>
 
           <H2>1. No Abort 😅</H2>
 
@@ -315,11 +315,11 @@ function App() {
             After stopping typing, database <code>CPU %</code> returned to ~0%
             in <b>~1 minute</b>.
           </P>
+        </div>
 
-          <Divider sx={{ mt: 4, mb: 4 }} />
-
+        <div className="card">
+          <H1>The Solution</H1>
           <H2>3. E2E Abort 🤓</H2>
-
           <Box sx={{ mb: 2 }}>
             <AutocompleteWrapper
               label="Search dogs by name"
@@ -342,18 +342,14 @@ function App() {
             This frees database resources faster when the frontend aborts the
             fetch.
           </P>
-
           <H2>Tradeoffs</H2>
-
           <Ul>
             <Li color="success">Optimizes resource usage</Li>
             <Li color="error" isLast>
               Requires complex implementation across multiple system layers
             </Li>
           </Ul>
-
           <H2>Expected Behavior</H2>
-
           <P sx={{ mb: 2 }}>
             The frontend should abort the fetch if the user keeps typing.
             However, because the backend implementation terminates the database
@@ -378,7 +374,6 @@ function App() {
             spike by <b>~15x</b>.
           </P>
         </div>
-
         <div className="card">
           <H1>Results</H1>
 
