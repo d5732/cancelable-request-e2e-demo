@@ -163,7 +163,7 @@ function App() {
           <AutocompleteWrapper
             useAbortController={false}
             label="Search dogs by name"
-            getUrl={(inputValue) =>
+            getSearchUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
                 inputValue
               )}`
@@ -213,7 +213,7 @@ function App() {
 
           <AutocompleteWrapper
             label="Search dogs by name"
-            getUrl={(inputValue) =>
+            getSearchUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
                 inputValue
               )}`
@@ -269,7 +269,7 @@ function App() {
 
           <AutocompleteWrapper
             label="Search dogs by name"
-            getUrl={(inputValue) =>
+            getSearchUrl={(inputValue) =>
               `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
                 inputValue
               )}`
@@ -398,11 +398,11 @@ function App() {
 
 const AutocompleteWrapper = ({
   label,
-  getUrl,
+  getSearchUrl,
   useAbortController = true,
 }: {
   label: string;
-  getUrl: (inputValue: string) => string;
+  getSearchUrl: (inputValue: string) => string;
   useAbortController?: boolean;
 }) => {
   const [options, setOptions] = useState<Dog[]>([]);
@@ -449,7 +449,7 @@ const AutocompleteWrapper = ({
       isOptionEqualToValue={(option, value) => option.id === value.id}
       onInputChange={(_: unknown, newInputValue: string) => {
         abortPreviousFetch();
-        fetchWithAbortController(getUrl(newInputValue));
+        fetchWithAbortController(getSearchUrl(newInputValue));
       }}
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
