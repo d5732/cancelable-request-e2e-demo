@@ -9,3 +9,7 @@ export function createLogger<T extends { constructor: Function }>(o: T) {
     {} as Pick<Console, 'debug' | 'log' | 'warn' | 'error'>,
   );
 }
+
+export function escapeLikePattern(string: string): string {
+  return string.replace(/([%_\\])/g, '\\$1');
+}
