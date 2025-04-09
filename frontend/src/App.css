@@ -9,44 +9,11 @@
   box-sizing: border-box;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .container {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
-}
-
-h1 {
-  margin-bottom: 2rem;
-  color: #ffffff;
 }
 
 .card {
@@ -59,40 +26,11 @@ h1 {
   box-sizing: border-box;
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #ffffff;
-}
-
-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #444;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: #3d3d3d;
-  color: #ffffff;
-  box-sizing: border-box;
-}
-
-input:focus {
-  outline: none;
-  border-color: #666;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-}
-
 p {
-  margin: 0.5rem 0;
   color: #b0b0b0;
-  line-height: 1.5;
 }
 
-/* Remove unused styles */
-.logo,
-.logo:hover,
-.logo.react:hover,
-.read-the-docs {
-  display: none;
+a {
+  color: #61dafb;
+  text-decoration: none;
 }
