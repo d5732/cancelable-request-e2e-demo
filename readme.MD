@@ -1,6 +1,6 @@
 # E2E Cancelable Requests
 
-This demo shows a resource optimization approach where unnecessary work is gracefully canceled when HTTP request are canceled by the frontend client.
+This demo shows a resource optimization approach where unnecessary work is gracefully canceled when an HTTP request is canceled by the frontend client.
 
 ## Request Flow
 
