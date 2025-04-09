@@ -42,6 +42,7 @@ This demo shows a resource optimization approach where unnecessary work is grace
 
 ## Getting Started
 
+- Start docker
 - In project root, open a terminal and run the following commands:
 
 ```
