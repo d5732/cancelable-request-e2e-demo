@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Client as _PgClient } from 'pg';
 import { Observable } from 'rxjs';
 import { DataSource, ILike, Repository } from 'typeorm';
-import { createLogger } from '../../utils';
+import { createLogger, escapeLikePattern } from '../../utils';
 import { Dog } from './entities/dog.entity';
 
 interface PgClient extends _PgClient {
@@ -22,6 +22,52 @@ export class AppService {
     private dataSource: DataSource,
   ) {}
   logger = createLogger(this);
+  async seedDogs(totalCount: number) {
+    const CHUNK_SIZE = 10000;
+    const chunks = Math.ceil(totalCount / CHUNK_SIZE);
+    let seededCount = 0;
+
+    for (let chunk = 0; chunk < chunks; chunk++) {
+      const currentChunkSize = Math.min(CHUNK_SIZE, totalCount - seededCount);
+      const dogs: Dog[] = [];
+
+      for (let i = 0; i < currentChunkSize; i++) {
+        const firstName = faker.person.firstName();
+        const lastName = faker.person.lastName();
+        const dog = this.dogRepository.create({
+          name: `${firstName}bark ${lastName}dog`,
+        });
+        dogs.push(dog);
+      }
+
+      await this.dogRepository.save(dogs);
+      seededCount += currentChunkSize;
+      this.logger.log(
+        `Seeded ${seededCount}/${totalCount} dogs (chunk ${chunk + 1}/${chunks})`,
+      );
+    }
+
+    const finalCount = await this.dogRepository.count();
+
+    this.logger.log(
+      `Completed seeding ${seededCount} dogs. There are now ${await this.dogRepository.count()} dogs in the database.`,
+    );
+    return { seededCount, finalCount };
+  }
+
+  async searchDogsByName(name: string): Promise<Dog[]> {
+    try {
+      return this.dogRepository.find({
+        where: {
+          name: ILike(`%${escapeLikePattern(name)}%`),
+        },
+        take: 500,
+      });
+    } catch (error) {
+      this.logger.error('Failed to search dogs:', error);
+      throw error;
+    }
+  }
 
   searchDogsByNameOrTerminatePidOnClose(name: string): Observable<Dog[]> {
     return new Observable<Dog[]>((subscriber) => {
@@ -42,7 +88,7 @@ export class AppService {
           queryRunner.manager
             .find(Dog, {
               where: {
-                name: ILike(`%${name}%`),
+                name: ILike(`%${escapeLikePattern(name)}%`),
               },
               take: 500,
             })
@@ -100,52 +146,5 @@ export class AppService {
         }
       };
     });
-  }
-
-  searchDogsByName(name: string): Promise<Dog[]> {
-    try {
-      return this.dogRepository.find({
-        where: {
-          name: ILike(`%${name}%`),
-        },
-        take: 500,
-      });
-    } catch (error) {
-      this.logger.error('Failed to search dogs:', error);
-      throw error;
-    }
-  }
-
-  async seedDogs(totalCount: number) {
-    const CHUNK_SIZE = 10000;
-    const chunks = Math.ceil(totalCount / CHUNK_SIZE);
-    let seededCount = 0;
-
-    for (let chunk = 0; chunk < chunks; chunk++) {
-      const currentChunkSize = Math.min(CHUNK_SIZE, totalCount - seededCount);
-      const dogs: Dog[] = [];
-
-      for (let i = 0; i < currentChunkSize; i++) {
-        const firstName = faker.person.firstName();
-        const lastName = faker.person.lastName();
-        const dog = this.dogRepository.create({
-          name: `${firstName}bark ${lastName}dog`,
-        });
-        dogs.push(dog);
-      }
-
-      await this.dogRepository.save(dogs);
-      seededCount += currentChunkSize;
-      this.logger.log(
-        `Seeded ${seededCount}/${totalCount} dogs (chunk ${chunk + 1}/${chunks})`,
-      );
-    }
-
-    const finalCount = await this.dogRepository.count();
-
-    this.logger.log(
-      `Completed seeding ${seededCount} dogs. There are now ${await this.dogRepository.count()} dogs in the database.`,
-    );
-    return { seededCount, finalCount };
   }
 }
