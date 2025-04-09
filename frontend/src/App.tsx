@@ -52,14 +52,14 @@ function App() {
             </a>
             ) which state that "a client ought to limit the number of
             simultaneous open connections that it maintains to a given server."
+            This limitation presents challenges for these dynamic UIs. The
+            browser's connection limit can cause requests to pile up in a queue,
+            increasing wait times.
           </P>
           <P sx={{ mb: 2 }}>
-            This limitation presents challenges for these dynamic UIs that
-            require frequent data updates. The browser's connection limit can
-            cause requests to pile up in a queue, increasing wait times. Even
-            within the connection limit, multiple requests can produce race
-            conditions on the frontend, because responses may not arrive in the
-            same order they were sent. This can lead to unexpected behavior.
+            Even within the connection limit, multiple requests can produce race
+            conditions on the frontend, because responses may be returned out of
+            order. This can lead to unexpected behavior.
           </P>
           <P sx={{ mb: 2 }}>
             To avoid these issues, we can cancel requests which are no longer
