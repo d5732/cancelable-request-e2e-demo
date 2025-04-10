@@ -411,8 +411,9 @@ function App() {
         <div className="card">
           <H1>Conclusion</H1>
           <P sx={{ mb: 2 }}>
-            End-to-end request cancellation can help optimize resource usage,
-            notably when database optimization is infeasible.
+            End-to-end request cancellation can help eliminate unnecessary
+            resource usage, notably when more conventional database optimization
+            is infeasible.
           </P>
           <P sx={{ mb: 2 }}>
             Query cancellation's benefit scales linearly with the cost of the
