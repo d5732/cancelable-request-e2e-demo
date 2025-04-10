@@ -29,9 +29,8 @@ This demo shows a resource optimization approach where unnecessary work is grace
    - Interceptor's `takeUntil` triggers unsubscribe
    - AppService's cleanup function runs
    - If query hasn't completed:
-     - Creates Connection 2
+     - Manages Database Connection 2
      - Cancels query using PID from Connection 1
-     - Releases Connection 2
 
 ## Requirements
 
