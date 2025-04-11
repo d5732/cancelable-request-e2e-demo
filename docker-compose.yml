@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: cancelable-request-postgres
+    ports:
+      - "49152:5432"
+    env_file:
+      - ./backend/config/database.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    env_file:
+      - ./backend/config/database.env
+    command: npm run start
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    command: npm run dev
+    volumes:
+      - ./frontend:/app
+    restart: unless-stopped
+
+volumes:
+  pgdata:
