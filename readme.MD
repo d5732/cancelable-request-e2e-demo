@@ -41,8 +41,19 @@ This demo shows a resource optimization approach where unnecessary work is grace
 
 ## Getting Started
 
-# cp backend/config/database.env.example backend/config/database.env
-# # optional: vim backend/config/database.env;
-# docker-compose up --build;
+- Start docker
+- In project root, open a terminal and run the following commands:
 
-Open http://localhost:5173 in a browser
+```
+cp backend/config/database.env.example backend/config/database.env;
+# vim backend/config/database.env; # optional: customize database env vars
+nvm use;
+npm run install:all;
+npm run start;
+```
+
+- Then, open your web browser and navigate to http://localhost:5173
+
+## References
+
+- Based on https://medium.com/marmicode/end-to-end-http-request-cancelation-with-rxjs-nestjs-909389c9d4bd
