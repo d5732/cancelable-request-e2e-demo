@@ -1,4 +1,4 @@
-# E2E Cancelable Requests
+# End-To-End Request Cancellation
 
 This demo shows a resource optimization approach where unnecessary work is gracefully canceled when an HTTP request is canceled by the frontend client.
 
