@@ -78,27 +78,32 @@ function App() {
           <H2>Your Backend Hates AbortController</H2>
 
           <P sx={{ mb: 2 }}>
-            While AbortController helps the frontend cancel requests, it{" "}
-            <b>does nothing to cancel the corresponding backend operations.</b>{" "}
-            Usage of the AbortController can create much more dramatic spikes in
-            requests, because{" "}
+            Usage of the AbortController can lead to more dramatic spikes in
+            backend resource usage, because{" "}
             <b>
               canceling requests effectively bypasses the browser's native
-              throttling of concurrent same-origin connections.
+              throttling of concurrent same-origin connections
             </b>
+            . And, while AbortController does help the frontend cancel requests,{" "}
+            <b>does not cancel any backend operations</b>, aside from network
+            egress.
           </P>
           <P sx={{ mb: 2 }}>
             A common mitigation strategy is to make backend operations as
-            efficient as possible, and simply allow the backend to complete
-            unnecessary operations for each canceled HTTP request. However, this
-            may not always be sufficient. At a certain scale, regardless of
-            optimization efforts, unnecessary operations would still be costly.
+            efficient as possible, and simply allow the backend to complete all
+            the unnecessary operations for each canceled HTTP request. However,
+            this may not always be sufficient.
           </P>
           <P sx={{ mb: 2 }}>
-            Additionally, especially in distributed systems, there are often
-            organizational and technical roadblocks, where more conventional
-            solutions could be outright prohibited, e.g., changes to the schema,
-            architecture, etc.
+            At colossal scale, unnecessary operations can still be extremely
+            costly, regardless of optimization efforts.
+          </P>
+          <P sx={{ mb: 2 }}>
+            Additionally, especially in distributed systems with complex
+            governance, there can be significant organizational and technical
+            roadblocks that render more conventional solutions (e.g., indexing,
+            schema changes, architecture changes, etc.) could be impractical or
+            outright prohibited.
           </P>
           <P>
             In these extreme scenarios, we can consider another strategy:{" "}
