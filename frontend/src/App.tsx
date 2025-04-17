@@ -11,13 +11,14 @@ import {
   Typography,
   TypographyProps,
 } from "@mui/material";
-import { useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import {
   CpuConsumptionChart,
   SpikeDurationChart,
   WaitTimeChart,
 } from "./PerformanceComparisonChart";
+import TestButton from "./TestButton";
 
 const BACKEND_URL = "http://localhost:3000";
 
@@ -208,13 +209,14 @@ function App() {
         </div>
 
         <div className="card">
-          <H1>Demonstrating the Problem</H1>
+          <H1>Base Cases (Without E2E Cancellation)</H1>
 
           <H2>1. No Abort 😅</H2>
 
           <Box sx={{ mb: 2 }}>
             <AutocompleteWrapper
               useAbortController={false}
+              id="no abort"
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
@@ -269,6 +271,7 @@ function App() {
 
           <Box sx={{ mb: 2 }}>
             <AutocompleteWrapper
+              id="simple abort"
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
@@ -323,10 +326,16 @@ function App() {
         </div>
 
         <div className="card">
-          <H1>The Solution</H1>
-          <H2>3. E2E Abort 🤓</H2>
+          <H1>E2E Abort 🤓</H1>
+
+          <P sx={{ mb: 2 }}>
+            Now, look at the difference in CPU % when the database query is
+            canceled when the client closes a pending request.
+          </P>
+
           <Box sx={{ mb: 2 }}>
             <AutocompleteWrapper
+              id="e2e abort"
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
@@ -464,10 +473,12 @@ function App() {
 
 const AutocompleteWrapper = ({
   label,
+  id,
   getSearchUrl,
   useAbortController = true,
 }: {
   label: string;
+  id: string;
   getSearchUrl: (inputValue: string) => string;
   useAbortController?: boolean;
 }) => {
@@ -507,7 +518,9 @@ const AutocompleteWrapper = ({
   };
 
   return (
+    //https://mui.com/material-ui/react-autocomplete/#customized-autocomplete
     <Autocomplete<Dog>
+      id={id}
       options={options}
       loading={loading}
       getOptionLabel={(option) => option.name}
@@ -518,23 +531,27 @@ const AutocompleteWrapper = ({
         fetchWithAbortController(getSearchUrl(newInputValue));
       }}
       renderInput={(params: AutocompleteRenderInputParams) => (
-        <TextField
-          {...params}
-          label={label}
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            },
-          }}
-        />
+        <div style={{ display: "flex" }}>
+          <TextField
+            {...params}
+            label={label}
+            slotProps={{
+              input: {
+                // id,
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              },
+            }}
+          />
+          <TestButton inputId={id} />
+        </div>
       )}
     />
   );
