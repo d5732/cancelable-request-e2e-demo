@@ -128,7 +128,7 @@ export class AppService {
       return () => {
         if (!isQueryComplete && processId) {
           this.logger.log(
-            'Cleanup effect: cancelling query for PID:',
+            'Cleanup effect: canceling query for PID:',
             processId,
           );
           // Cancel the search dogs query

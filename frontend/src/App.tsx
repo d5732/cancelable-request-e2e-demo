@@ -86,7 +86,7 @@ function App() {
               throttling of concurrent same-origin connections
             </b>
             . And, while AbortController does help the frontend cancel requests,{" "}
-            <b>does not cancel any backend operations</b>, aside from network
+            <b>it does not cancel any backend operations</b>, aside from network
             egress.
           </P>
           <P sx={{ mb: 2 }}>
@@ -96,15 +96,14 @@ function App() {
             this may not always be sufficient.
           </P>
           <P sx={{ mb: 2 }}>
-            At colossal scale, unnecessary operations can still be extremely
-            costly, regardless of optimization efforts.
-          </P>
-          <P sx={{ mb: 2 }}>
-            Additionally, especially in distributed systems with complex
-            governance, there can be significant organizational and technical
-            roadblocks that render more conventional solutions (e.g., indexing,
-            schema changes, architecture changes, etc.) could be impractical or
-            outright prohibited.
+            In distributed systems with complex governance, we may find
+            ourselves in awkward situations where more conventional solutions
+            (e.g., indexing, schema changes, architecture changes, etc.) could
+            be impractical or outright prohibited. For example, we may be using
+            a third-party database service, or we may be working with a legacy
+            system that we cannot modify or does not have adequate funding for
+            enhancements. In these cases, we may not be able to optimize the
+            database query to improve performance.
           </P>
           <P>
             In these extreme scenarios, we can consider another strategy:{" "}
@@ -141,8 +140,8 @@ function App() {
             SELECT * FROM dogs WHERE name ILIKE $1 LIMIT 500;
           </Typography>
           <P sx={{ mb: 2 }}>
-            The backend adds <code>%</code> wildcards the search term provided
-            by the UI, such that the
+            The backend adds <code>%</code> wildcards to the search term
+            provided by the UI, such that the
             <code>name</code> is transformed to <code>`%name%`</code> when
             passed as a parameter to the SQL statement.
           </P>
@@ -464,6 +463,24 @@ function App() {
             must ensure connections will be readily available to handle query
             cancellation to achieve the performance benefits. Consider using a
             dedicated connection pool for cancellations.
+          </P>
+
+          <H3>Scaling Concerns</H3>
+          <P sx={{ mb: 2 }}>
+            The implementation would need to change if you need to deal with
+            sharded databases. You may also find that, when combined with more
+            complex architecture of sharded database, this approach is too
+            cumbersome. The complexity increases when you need to think about
+            propagating query cancellation to the correct database shard, for
+            example.
+          </P>
+          <P>
+            Additionally, if you are using a distributed database, you may not
+            really be worried so much. The fact that you're sharding your
+            database hopefully indicates that your architecture is under
+            competent control. Thus, you may not be bound by the constraints
+            described here, which would justify implementing end-to-end
+            cancellation.
           </P>
         </div>
       </div>
