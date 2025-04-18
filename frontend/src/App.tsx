@@ -483,6 +483,34 @@ function App() {
             cancellation.
           </P>
         </div>
+
+        <div className="card">
+          <H1>Ideas for Extension</H1>
+          <P sx={{ mb: 2 }}>
+            If you're left wondering about further challenges, here are a few
+            more ideas to explore!
+          </P>
+
+          <P sx={{ mb: 2 }}>
+            How would you implement E2E abort in a sharded database?
+          </P>
+
+          <P sx={{ mb: 2 }}>
+            How can we achieve similar results with another database? What About
+            GraphQL?
+          </P>
+
+          <P sx={{ mb: 2 }}>
+            Could we stream results? What would this look like with
+            pg-query-stream and Concatenated JSON?
+          </P>
+
+          <P>
+            What about other backend languages for your webserver? Would you
+            reach for the ReactiveX library in your preferred language, or would
+            you use something else?
+          </P>
+        </div>
       </div>
     </ThemeProvider>
   );
