@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Client as _PgClient } from 'pg';
 import { Observable } from 'rxjs';
 import { DataSource, ILike, Repository } from 'typeorm';
@@ -20,6 +20,8 @@ export class AppService {
     @InjectRepository(Dog)
     private dogRepository: Repository<Dog>,
     private dataSource: DataSource,
+@InjectDataSource('fallback')
+    private fallbackDataSource: DataSource,
   ) {}
   logger = createLogger(this);
   async seedDogs(totalCount: number) {
