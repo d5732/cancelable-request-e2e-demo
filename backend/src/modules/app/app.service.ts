@@ -17,17 +17,16 @@ interface PgClient extends _PgClient {
 
 interface BoundPool {
   /**
-   * All the clients in the pool
+   * All clients currently in the pool
    */
   _clients: any[];
   /**
-   * Clients which are idle and could be immediately allocated to a new query
-   * or query runner
+   * Clients in the pool which are idle
    */
   _idle: any[];
   options: {
     /**
-     * The maximum number of clients the pool should contain
+     * Maximum number of clients allowed in the pool
      */
     max: number;
   };
