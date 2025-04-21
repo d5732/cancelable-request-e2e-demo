@@ -38,6 +38,7 @@ export class AppService {
   constructor(
     @InjectRepository(Dog)
     private dogRepository: Repository<Dog>,
+    @InjectDataSource()
     private dataSource: DataSource,
     @InjectDataSource('fallback')
     private fallbackDataSource: DataSource,
