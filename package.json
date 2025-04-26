@@ -7,7 +7,8 @@
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start",
-    "start": "concurrently --kill-others --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"npm run start:frontend\" \"npm run start:backend\" --handle-input"
+    "start": "concurrently --kill-others --names \"FRONTEND,BACKEND\" --prefix-colors \"blue,green\" \"npm run start:frontend\" \"npm run start:backend\" --handle-input",
+    "format": "cd backend && npm run format && cd ../frontend && npm run format"
   },
   "author": "d5732@github.com",
   "devDependencies": {
