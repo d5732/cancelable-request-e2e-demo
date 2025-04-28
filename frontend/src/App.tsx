@@ -10,17 +10,17 @@ import {
   ThemeProvider,
   Typography,
   TypographyProps,
-} from "@mui/material";
-import React, { useState } from "react";
-import "./App.css";
+} from '@mui/material';
+import React, { useState } from 'react';
+import './App.css';
 import {
   CpuConsumptionChart,
   SpikeDurationChart,
   WaitTimeChart,
-} from "./PerformanceComparisonChart";
-import TestButton from "./TestButton";
+} from './PerformanceComparisonChart';
+import TestButton from './TestButton';
 
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = 'http://localhost:3000';
 
 function App() {
   return (
@@ -41,7 +41,7 @@ function App() {
           </P>
 
           <P sx={{ mb: 2 }}>
-            Most modern browsers limit concurrent connections to{" "}
+            Most modern browsers limit concurrent connections to{' '}
             <b>6 per server</b>. This is in compliance with HTTP/1.1
             specifications (
             <a
@@ -60,11 +60,11 @@ function App() {
           <P sx={{ mb: 2 }}>
             Even within the connection limit, multiple requests can produce race
             conditions on the frontend, because responses may be returned out of
-            order. This can lead to unexpected behavior.{" "}
+            order. This can lead to unexpected behavior.{' '}
           </P>
           <P sx={{ mb: 2 }}>
             So, we often want to cancel requests which are no longer relevant to
-            the frontend's current state, using{" "}
+            the frontend's current state, using{' '}
             <a
               target="_blank"
               rel="noopener noreferrer"
@@ -80,12 +80,12 @@ function App() {
 
           <P sx={{ mb: 2 }}>
             Usage of the AbortController can lead to more dramatic spikes in
-            backend resource usage, because{" "}
+            backend resource usage, because{' '}
             <b>
               canceling requests effectively bypasses the browser's native
               throttling of concurrent same-origin connections
             </b>
-            . And, while AbortController does help the frontend cancel requests,{" "}
+            . And, while AbortController does help the frontend cancel requests,{' '}
             <b>it does not cancel any backend operations</b>, aside from network
             egress.
           </P>
@@ -106,7 +106,7 @@ function App() {
             database query to improve performance.
           </P>
           <P>
-            In these extreme scenarios, we can consider another strategy:{" "}
+            In these extreme scenarios, we can consider another strategy:{' '}
             <b>propagate cancellation end-to-end.</b>
           </P>
 
@@ -124,17 +124,17 @@ function App() {
           </P>
 
           <P sx={{ mb: 2 }}>
-            The query executed by the webserver to fetch dogs is:{" "}
+            The query executed by the webserver to fetch dogs is:{' '}
           </P>
           <Typography
             variant="body1"
             component="pre"
             sx={{
               mb: 2,
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              padding: "1rem",
-              borderRadius: "4px",
-              fontFamily: "monospace",
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              padding: '1rem',
+              borderRadius: '4px',
+              fontFamily: 'monospace',
             }}
           >
             SELECT * FROM dogs WHERE name ILIKE $1 LIMIT 500;
@@ -146,10 +146,10 @@ function App() {
             passed as a parameter to the SQL statement.
           </P>
           <P sx={{ mb: 2 }}>
-            The{" "}
+            The{' '}
             <b>
               <code>dogs.name</code>
-            </b>{" "}
+            </b>{' '}
             column is deliberately <b>not indexed</b>. Thus, each database query
             will perform a full table scan.
           </P>
@@ -171,14 +171,14 @@ function App() {
             which is the suggested threshold for meaningful observation.
           </P>
           <P>
-            To seed dogs, navigate to{" "}
+            To seed dogs, navigate to{' '}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="http://localhost:3000/swagger#/dogs/AppController_seedDogs"
             >
               Swagger UI
-            </a>{" "}
+            </a>{' '}
             and enter the desired number of records to seed. Note that it took
             ~1 minute to seed 1 million records on my machine.
           </P>
@@ -197,10 +197,10 @@ function App() {
             variant="body1"
             component="pre"
             sx={{
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              padding: "1rem",
-              borderRadius: "4px",
-              fontFamily: "monospace",
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              padding: '1rem',
+              borderRadius: '4px',
+              fontFamily: 'monospace',
             }}
           >
             $ docker stats
@@ -219,7 +219,7 @@ function App() {
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
-                  inputValue
+                  inputValue,
                 )}`
               }
             />
@@ -274,7 +274,7 @@ function App() {
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/search?name=${encodeURIComponent(
-                  inputValue
+                  inputValue,
                 )}`
               }
             />
@@ -315,7 +315,7 @@ function App() {
             seconds by typing random characters.
           </P>
           <P sx={{ mb: 2 }}>
-            I saw database <code>CPU %</code> consumption spike to <b>~1200%</b>{" "}
+            I saw database <code>CPU %</code> consumption spike to <b>~1200%</b>{' '}
             while typing.
           </P>
           <P>
@@ -338,7 +338,7 @@ function App() {
               label="Search dogs by name"
               getSearchUrl={(inputValue) =>
                 `${BACKEND_URL}/v1/dogs/cancelable/search?name=${encodeURIComponent(
-                  inputValue
+                  inputValue,
                 )}`
               }
             />
@@ -372,7 +372,7 @@ function App() {
           </P>
           <P sx={{ mb: 2 }}>
             On my machine, I was able to trigger ~400 HTTP requests in 10
-            seconds by typing random characters. I saw the database{" "}
+            seconds by typing random characters. I saw the database{' '}
             <code>CPU %</code> spike to <b>~400%</b> while typing.
           </P>
           <P sx={{ mb: 2 }}>
@@ -380,7 +380,7 @@ function App() {
             in <b>~4 seconds</b>.
           </P>
           <P>
-            Compared to the previous example, this is a{" "}
+            Compared to the previous example, this is a{' '}
             <b>significant improvement in database resource usage</b>. Based on
             the figures I observed, this approach reduces CPU usage during the
             traffic spike by <b>~3x</b>, and reduces the duration of CPU usage
@@ -442,14 +442,14 @@ function App() {
 
           <H3>Learning Curve</H3>
           <P sx={{ mb: 2 }}>
-            The implementation in this demo requires familiarity with{" "}
+            The implementation in this demo requires familiarity with{' '}
             <a
               target="_blank"
               rel="noopener noreferrer"
               href="https://en.wikipedia.org/wiki/Reactive_programming"
             >
               reactive programming
-            </a>{" "}
+            </a>{' '}
             and RxJS. Consider that future newcomers to your project may be
             unfamiliar with this paradigm, which may raise your project's
             barrier to entry.
@@ -552,10 +552,10 @@ const AutocompleteWrapper = ({
       const data = await response.json();
       setOptions(data);
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        console.log("Fetch aborted");
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Fetch aborted');
       } else {
-        console.error("Error fetching dogs:", error);
+        console.error('Error fetching dogs:', error);
       }
     } finally {
       setLoading(false);
@@ -576,7 +576,7 @@ const AutocompleteWrapper = ({
         fetchWithAbortController(getSearchUrl(newInputValue));
       }}
       renderInput={(params: AutocompleteRenderInputParams) => (
-        <div style={{ display: "flex" }}>
+        <div style={{ display: 'flex' }}>
           <TextField
             {...params}
             label={label}
@@ -650,9 +650,9 @@ function Li({ children, color, isLast = false }: LiProps) {
       style={{
         color: color ? COLORS[color] : undefined,
         backgroundColor: color ? `${COLORS[color]}15` : undefined,
-        padding: "0.25rem 0.5rem",
-        borderRadius: "4px",
-        marginBottom: isLast ? 0 : "0.5rem",
+        padding: '0.25rem 0.5rem',
+        borderRadius: '4px',
+        marginBottom: isLast ? 0 : '0.5rem',
       }}
     >
       {children}
@@ -674,10 +674,10 @@ interface Dog {
 }
 
 const COLORS = {
-  success: "#4caf50",
-  error: "#f44336",
+  success: '#4caf50',
+  error: '#f44336',
 } as const;
 
-const darkTheme = createTheme({ palette: { mode: "dark" } });
+const darkTheme = createTheme({ palette: { mode: 'dark' } });
 
 export default App;

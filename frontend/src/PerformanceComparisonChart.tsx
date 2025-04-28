@@ -7,24 +7,24 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { AxisDomain } from "recharts/types/util/types";
+} from 'recharts';
+import { AxisDomain } from 'recharts/types/util/types';
 
 const approachData = [
   {
-    name: "No Abort",
+    name: 'No Abort',
     waitTime: 60,
     cpuSpike: 1200,
     saturationDuration: 70,
   },
   {
-    name: "Simple Abort",
+    name: 'Simple Abort',
     waitTime: 60,
     cpuSpike: 1200,
     saturationDuration: 70,
   },
   {
-    name: "E2E Abort",
+    name: 'E2E Abort',
     waitTime: 1,
     cpuSpike: 400,
     saturationDuration: 4,
@@ -43,20 +43,20 @@ function MetricChart({ title, dataKey, color, xAxisDomain }: MetricChartProps) {
     <ResponsiveContainer width="100%" height={200}>
       <BarChart layout="vertical" data={approachData}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" tick={{ fill: "#b0b0b0" }} domain={xAxisDomain} />
+        <XAxis type="number" tick={{ fill: '#b0b0b0' }} domain={xAxisDomain} />
         <YAxis
           dataKey="name"
           type="category"
           width={100}
-          tick={{ fill: "#b0b0b0" }}
+          tick={{ fill: '#b0b0b0' }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#333",
-            border: "none",
-            color: "#b0b0b0",
+            backgroundColor: '#333',
+            border: 'none',
+            color: '#b0b0b0',
           }}
-          itemStyle={{ color: "#b0b0b0" }}
+          itemStyle={{ color: '#b0b0b0' }}
         />
         <Legend />
         <Bar dataKey={dataKey} fill={color} name={title} />

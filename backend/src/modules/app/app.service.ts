@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Client as _PgClient } from 'pg';
 import { Observable } from 'rxjs';
-import { DataSource, ILike, Repository } from 'typeorm';
+import { DataSource, ILike, QueryRunner, Repository } from 'typeorm';
 import { createLogger, escapeLikePattern } from '../../utils';
+import { delay } from '../../utils/delay';
 import { Dog } from './entities/dog.entity';
 
 interface PgClient extends _PgClient {
@@ -14,12 +15,36 @@ interface PgClient extends _PgClient {
   processID: number;
 }
 
+interface BoundPool {
+  /**
+   * All clients currently in the pool
+   */
+  _clients: any[];
+  /**
+   * Clients in the pool which are idle
+   */
+  _idle: any[];
+  options: {
+    /**
+     * Maximum number of clients allowed in the pool
+     */
+    max: number;
+  };
+}
+
+interface MasterDataSource extends DataSource {
+  driver: { master: BoundPool } & DataSource['driver'];
+}
+
 @Injectable()
 export class AppService {
   constructor(
     @InjectRepository(Dog)
     private dogRepository: Repository<Dog>,
-    private dataSource: DataSource,
+    @InjectDataSource()
+    private dataSource: MasterDataSource,
+    @InjectDataSource('fallback')
+    private fallbackDataSource: MasterDataSource,
   ) {}
   logger = createLogger(this);
   async seedDogs(totalCount: number) {
@@ -131,8 +156,21 @@ export class AppService {
             'Cleanup effect: canceling query for PID:',
             processId,
           );
+
+          // Use the fallback pool if regular pool is busy and full. This helps
+          // ensure that query cancellation can be performed even when the main
+          // pool is at capacity.
+          let dataSource: DataSource;
+          if (this.isPoolAtCapacity(this.dataSource.driver.master)) {
+            dataSource = this.fallbackDataSource;
+            this.logger.log('Using fallback data source to cancel query');
+          } else {
+            dataSource = this.dataSource;
+            this.logger.log('Using regular data source to cancel query');
+          }
+
           // Cancel the search dogs query
-          this.dataSource
+          dataSource
             .query('SELECT pg_cancel_backend($1)', [processId])
             .then(() => {
               this.logger.log(
@@ -146,5 +184,60 @@ export class AppService {
         }
       };
     });
+  }
+
+  /**
+   * Returns true if connection pool is full and there are no idle connections.
+   */
+  isPoolAtCapacity(pool: BoundPool) {
+    return this.getPoolCapacity(pool) === 0;
+  }
+
+  /**
+   * Returns the total available capacity of the connection pool.
+   * This includes both currently idle connections and potential new connections
+   * that could be created without exceeding the pool's maximum limit.
+   */
+  getPoolCapacity(pool: BoundPool): number {
+    const clients = pool._clients || [];
+    const idleClients = pool._idle || [];
+    const maxClients = pool.options?.max || 0;
+
+    // Calculate how many new connections can be created before reaching the max limit
+    const capacityForNewClients = Math.max(0, maxClients - clients.length);
+
+    // Total capacity is idle connections plus potential new connections
+    return idleClients.length + capacityForNewClients;
+  }
+
+  /**
+   * For testing, we want to allocate all but 1 connection of the main dataSource's connection pool. This enables experiments where a cancelable query is in flight, and the main dataSource has no idle connections with which to cancel the cancelable query.
+   */
+  async saturateConnectionPoolWithFakeSlowQueries(timeoutMs: number) {
+    this.logger.log('Saturating connection pool');
+
+    // Create query runners for all but 1 idle connection
+    const queryRunners: QueryRunner[] = [];
+    while (this.getPoolCapacity(this.dataSource.driver.master) > 1) {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      queryRunners.push(queryRunner);
+    }
+
+    this.logger.log(
+      'Created',
+      queryRunners.length,
+      `query runners. Waiting for timeout (${timeoutMs}ms) ...`,
+    );
+
+    // Wait for timeout
+    await delay(timeoutMs);
+
+    this.logger.log('Releasing query runners');
+
+    // Release query runners
+    await Promise.allSettled(queryRunners.map((qr) => qr.release()));
+
+    this.logger.log('Released query runners');
   }
 }

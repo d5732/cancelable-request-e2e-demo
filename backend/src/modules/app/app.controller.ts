@@ -65,4 +65,32 @@ export class AppController {
   ): Observable<Dog[]> {
     return this.appService.searchDogsByNameOrTerminatePidOnClose(name);
   }
+
+  @Post('saturate-connection-pool')
+  @ApiOperation({
+    summary: 'Saturate the connection pool',
+    description:
+      'Artificially saturates the main connection pool, leaving exactly 1 idle connection available.',
+  })
+  @ApiQuery({
+    name: 'duration',
+    required: true,
+    type: Number,
+    description:
+      'Duration in seconds that each connection will be allocated for. ',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Returns a message indicating that the connection pool has been saturated',
+  })
+  saturateConnectionPool(@Query('duration') duration: number) {
+    // Do not await
+    void this.appService.saturateConnectionPoolWithFakeSlowQueries(
+      duration * 1000,
+    );
+
+    // Return job started message
+    return `Saturating main connection pool with fake slow queries for ${duration} seconds`;
+  }
 }

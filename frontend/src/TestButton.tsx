@@ -1,21 +1,21 @@
-import { Button } from "@mui/material";
-import { delay } from "./utils/delay";
+import { Button } from '@mui/material';
+import { delay } from './utils/delay';
 
 type Props = {
   inputId: string;
 };
 function TestButton({ inputId }: Props) {
   function fireOnChange(element) {
-    const changeEvent = new Event("change");
+    const changeEvent = new Event('change');
     // set target (workaround to set readonly property)
-    Object.defineProperty(changeEvent, "target", {
+    Object.defineProperty(changeEvent, 'target', {
       writable: false,
       value: element,
     });
 
     // trigger element.__reactProps$.onChange
     element[
-      Object.keys(element).find((key) => key.match("reactProps"))!
+      Object.keys(element).find((key) => key.match('reactProps'))!
     ].onChange(changeEvent);
   }
 

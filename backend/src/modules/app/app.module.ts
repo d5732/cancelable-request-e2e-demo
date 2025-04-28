@@ -14,6 +14,16 @@ import { Dog } from './entities/dog.entity';
         autoLoadEntities: true,
       }),
     }),
+    // This additional dataSource can be used as a fallback for
+    // pg_cancel_backend when primary dataSource's connection pool is full and
+    // has no idle connections
+    TypeOrmModule.forRootAsync({
+      name: 'fallback',
+      useFactory: () => ({
+        ...appDataSourceOptions,
+        autoLoadEntities: true,
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
