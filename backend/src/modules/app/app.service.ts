@@ -218,14 +218,10 @@ export class AppService {
 
     // Create query runners for all but 1 idle connection
     const queryRunners: QueryRunner[] = [];
-    let poolCapacity: number = this.getPoolCapacity(
-      this.dataSource.driver.master,
-    );
-    while (poolCapacity > 1) {
+    while (this.getPoolCapacity(this.dataSource.driver.master) > 1) {
       const queryRunner = this.dataSource.createQueryRunner();
       await queryRunner.connect();
       queryRunners.push(queryRunner);
-      poolCapacity = this.getPoolCapacity(this.dataSource.driver.master);
     }
 
     this.logger.log(
